@@ -1,0 +1,8 @@
+import * as z from "zod"
+
+export const userAuthSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(4).max(12),
+})
+
+export type IUserAuth = z.infer<typeof userAuthSchema>
