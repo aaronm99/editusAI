@@ -19,6 +19,16 @@ export const dashboardConfig: DashboardConfig = {
       icon: "video",
     },
     {
+      title: "Library",
+      href: "/dashboard/library",
+      icon: "library",
+    },
+    {
+      title: "Presets",
+      href: "/dashboard/presets",
+      icon: "boxes",
+    },
+    {
       title: "Billing",
       href: "/dashboard/billing",
       icon: "billing",

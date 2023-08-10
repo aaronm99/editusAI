@@ -8,7 +8,6 @@ import { getUserSubscriptionPlan } from "@/lib/subscription"
 
 const postCreateSchema = z.object({
   title: z.string(),
-  content: z.string().optional(),
 })
 
 export async function GET() {
@@ -69,7 +68,6 @@ export async function POST(req: Request) {
     const video = await db.video.create({
       data: {
         title: body.title,
-        content: body.content,
         authorId: session.user.id,
       },
       select: {

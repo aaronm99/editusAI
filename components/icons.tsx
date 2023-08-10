@@ -25,6 +25,8 @@ import {
   X,
   Camera,
   type Icon as LucideIcon,
+  Library,
+  Boxes,
 } from "lucide-react"
 
 export type Icon = LucideIcon
@@ -44,6 +46,8 @@ export const Icons = {
   billing: CreditCard,
   ellipsis: MoreVertical,
   add: Plus,
+  library: Library,
+  boxes: Boxes,
   warning: AlertTriangle,
   user: User,
   arrowRight: ArrowRight,

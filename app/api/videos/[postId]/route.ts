@@ -3,7 +3,7 @@ import * as z from "zod"
 
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { postPatchSchema } from "@/lib/validations/post"
+import { FormSchema } from "@/components/editor"
 
 const routeContextSchema = z.object({
   params: z.object({
@@ -56,7 +56,7 @@ export async function PATCH(
 
     // Get the request body and validate it.
     const json = await req.json()
-    const body = postPatchSchema.parse(json)
+    const body = FormSchema.parse(json)
 
     // Update the post.
     // TODO: Implement sanitization for content.
@@ -65,8 +65,7 @@ export async function PATCH(
         id: params.videoId,
       },
       data: {
-        title: body.title,
-        content: body.content,
+        config: body,
       },
     })
 

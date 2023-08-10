@@ -64,8 +64,7 @@ model VerificationToken {
 
 model Video {
   id        String   @id @default(cuid())
-  title     String
-  content   Json?
+  config   Json?
   published Boolean  @default(false)
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @map("updated_at")

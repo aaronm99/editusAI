@@ -71,8 +71,6 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   async function registerUser(data: FormData) {
     setIsLoading(true)
 
-    setIsLoading(true)
-
     try {
       const res = await addUser(data)
 

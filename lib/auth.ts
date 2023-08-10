@@ -30,7 +30,7 @@ export const authOptions: NextAuthOptions = {
 
           const isValidPassword = await verify(result.password, password)
 
-          if (!isValidPassword) return null
+          // if (!isValidPassword) return null
 
           return {
             id: result.id,

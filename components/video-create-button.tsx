@@ -59,7 +59,7 @@ export function VideoCreateButton({
 
   return (
     <button
-      // onClick={onClick}
+      onClick={onClick}
       className={cn(
         buttonVariants({ variant }),
         {
