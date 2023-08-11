@@ -37,8 +37,8 @@ export default async function EditorPage({ params }: EditorPageProps) {
       video={{
         id: video.id,
         title: video.title,
-        content: video.content,
         published: video.published,
+        config: video.config,
       }}
     />
   )

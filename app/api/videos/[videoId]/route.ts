@@ -3,7 +3,7 @@ import * as z from "zod"
 
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { FormSchema } from "@/components/editor"
+import { FormSchema } from "@/types/schema"
 
 const routeContextSchema = z.object({
   params: z.object({
@@ -47,6 +47,7 @@ export async function PATCH(
 ) {
   try {
     // Validate route params.
+
     const { params } = routeContextSchema.parse(context)
 
     // Check if the user has access to this post.
@@ -56,10 +57,11 @@ export async function PATCH(
 
     // Get the request body and validate it.
     const json = await req.json()
-    const body = FormSchema.parse(json)
+    const body = FormSchema.parse(json.content)
 
     // Update the post.
     // TODO: Implement sanitization for content.
+
     await db.video.update({
       where: {
         id: params.videoId,
@@ -79,11 +81,11 @@ export async function PATCH(
   }
 }
 
-async function verifyCurrentUserHasAccessToPost(postId: string) {
+async function verifyCurrentUserHasAccessToPost(videoId: string) {
   const session = await getServerSession(authOptions)
   const count = await db.video.count({
     where: {
-      id: postId,
+      id: videoId,
       authorId: session?.user.id,
     },
   })

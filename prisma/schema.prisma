@@ -64,11 +64,12 @@ model VerificationToken {
 
 model Video {
   id        String   @id @default(cuid())
-  config   Json?
   published Boolean  @default(false)
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @map("updated_at")
   authorId  String
+  config    Json?
+  title     String
 
   @@map("videos")
 }

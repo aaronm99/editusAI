@@ -40,35 +40,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select"
+import { FormSchema } from "@/types/schema"
 
 interface EditorProps {
-  video: Pick<Video, "id" | "title" | "content" | "published">
+  video: Pick<Video, "id" | "title" | "published" | "config">
 }
 
 type FormData = z.infer<typeof postPatchSchema>
-
-export const FormSchema = z.object({
-  title: z.string().min(2, {
-    message: "Title must be at least 2 characters.",
-  }),
-  secondaryTitle: z.string().min(2, {
-    message: "Title must be at least 2 characters.",
-  }),
-  splitPosition: z.string(),
-  captionPosition: z.string(),
-  caption: z.object({
-    font: z.object({
-      family: z.string(),
-      weight: z.string(),
-      size: z.number(),
-    }),
-    sentence: z.object({
-      length: z.string(),
-      casing: z.string(),
-    }),
-    nouns: z.boolean(),
-  }),
-})
 
 export function Editor({ video }: EditorProps) {
   const { register, handleSubmit } = useForm<FormData>({
@@ -273,7 +251,6 @@ interface PageOneProps extends PageProps {
   file: File | undefined
   form: any
   isDragging: boolean
-  formSubmit: any
   handleDragEnter: (e: React.DragEvent<HTMLDivElement>) => void
   handleDragLeave: (e: React.DragEvent<HTMLDivElement>) => void
   handleDrop: (e: React.DragEvent<HTMLDivElement>) => void
@@ -284,7 +261,6 @@ interface PageTwoProps extends PageProps {
   file: File | undefined
   form: any
   isDragging: boolean
-  formSubmit: any
   handleDragEnter: (e: React.DragEvent<HTMLDivElement>) => void
   handleDragLeave: (e: React.DragEvent<HTMLDivElement>) => void
   handleDrop: (e: React.DragEvent<HTMLDivElement>) => void
@@ -295,7 +271,6 @@ const PageOne = ({
   file,
   form,
   isDragging,
-  formSubmit,
   handleDragEnter,
   handleDragLeave,
   handleDrop,
@@ -378,7 +353,6 @@ const PageTwo = ({
   file,
   form,
   isDragging,
-  formSubmit,
   handleDragEnter,
   handleDragLeave,
   handleDrop,
@@ -473,6 +447,9 @@ const PageTwo = ({
 
 interface PageThreeProps extends PageProps {
   form: any
+}
+interface PageFourProps extends PageProps {
+  form: any
   handleCallback: () => void
 }
 
@@ -535,7 +512,7 @@ type SelectedFontProps = {
   variants: string[]
 }
 
-const PageFour = ({ nextStep, form, handleCallback }: PageThreeProps) => {
+const PageFour = ({ form, handleCallback }: PageFourProps) => {
   const [position, setPosition] = React.useState(0.5)
   const [fonts, setFonts] = React.useState<FontType[]>([])
   const [selectedFont, setSelectedFont] = React.useState<SelectedFontProps>({
