@@ -115,7 +115,7 @@ export default async function VideoPage({ params }: PostPageProps) {
             Published on {formatDate(video.date)}
           </time>
         )}
-        <h1 className="mt-2 inline-block font-heading text-4xl leading-tight lg:text-5xl">
+        <h1 className="font-heading mt-2 inline-block text-4xl leading-tight lg:text-5xl">
           {video.title}
         </h1>
         {authors?.length ? (

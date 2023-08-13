@@ -15,5 +15,13 @@ export function formatDate(input: string | number): string {
 }
 
 export function absoluteUrl(path: string) {
-  return `${env.NEXT_PUBLIC_APP_URL}${path}`
+  return `${process.env.NEXT_PUBLIC_APP_URL}${path}`
+}
+
+export function formatFileSize(sizeInBytes) {
+  if (sizeInBytes >= Math.pow(1024, 3)) {
+    return `${(sizeInBytes / Math.pow(1024, 3)).toFixed(2)} GB`
+  } else {
+    return `${(sizeInBytes / Math.pow(1024, 2)).toFixed(2)} MB`
+  }
 }
