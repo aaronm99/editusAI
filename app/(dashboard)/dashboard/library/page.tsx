@@ -8,6 +8,17 @@ import { AlbumArtwork } from "./components/album-artwork"
 import { PodcastEmptyPlaceholder } from "./components/podcast-empty-placeholder"
 import { madeForYouAlbums } from "./data/albums"
 import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+
+import { UploadVideo } from "./components/add-video"
 
 export const metadata: Metadata = {
   title: "Music App",
@@ -49,10 +60,20 @@ export default function MusicPage() {
                         <TabsTrigger value="new">New</TabsTrigger>
                       </TabsList>
                       <div className="ml-auto mr-4">
-                        <Button>
-                          {/* <PlusCircledIcon className="mr-2 h-4 w-4" /> */}
-                          Add videos
-                        </Button>
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="default">Add Video</Button>
+                          </DialogTrigger>
+                          <DialogContent className="sm:max-w-[725px]">
+                            <DialogHeader>
+                              <DialogTitle>Add Video</DialogTitle>
+                              <DialogDescription>
+                                Add a video to your library for future use.
+                              </DialogDescription>
+                            </DialogHeader>
+                            <UploadVideo />
+                          </DialogContent>
+                        </Dialog>
                       </div>
                     </div>
                     <TabsContent

@@ -37,7 +37,7 @@ export default async function DashboardPage() {
 
   return (
     <DashboardShell>
-      <DashboardHeader heading="Video" text="Create and manage video.">
+      <DashboardHeader heading="Video" text="Create and manage videos.">
         <VideoCreateButton />
       </DashboardHeader>
       <div>
@@ -50,9 +50,9 @@ export default async function DashboardPage() {
         ) : (
           <EmptyPlaceholder>
             <EmptyPlaceholder.Icon name="video" />
-            <EmptyPlaceholder.Title>No video created</EmptyPlaceholder.Title>
+            <EmptyPlaceholder.Title>No videos created</EmptyPlaceholder.Title>
             <EmptyPlaceholder.Description>
-              You don&apos;t have any video yet. Start creating content.
+              You don&apos;t have any videos yet. Start creating content.
             </EmptyPlaceholder.Description>
             <VideoCreateButton variant="outline" />
           </EmptyPlaceholder>

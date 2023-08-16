@@ -48,14 +48,14 @@ export function Editor({ video }: EditorProps) {
   })
 
   const handleFileChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
+    e: React.ChangeEvent<HTMLInputElement> | React.DragEvent<HTMLDivElement>,
     type?: "secondary"
   ) => {
     const secondary = type === "secondary"
 
-    if (e.target.files) {
+    if (e.target instanceof HTMLInputElement && e.target.files) {
       secondary ? setFileTwo(e.target.files[0]) : setFile(e.target.files[0])
-    } else if (e.dataTransfer.files) {
+    } else if ("dataTransfer" in e && e.dataTransfer && e.dataTransfer.files) {
       secondary
         ? setFileTwo(e.dataTransfer.files[0])
         : setFile(e.dataTransfer.files[0])

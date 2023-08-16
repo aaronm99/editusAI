@@ -22,3 +22,9 @@ export const FormSchema = z.object({
     nouns: z.boolean(),
   }),
 })
+
+export const PresetSchema = z.object({
+  name: z.string().min(2, {
+    message: "Name must be at least 2 characters.",
+  }),
+})
