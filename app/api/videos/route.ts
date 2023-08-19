@@ -23,11 +23,11 @@ export async function GET() {
       select: {
         id: true,
         title: true,
-        published: true,
+        status: true,
         createdAt: true,
       },
       where: {
-        authorId: user.id,
+        userId: user.id,
       },
     })
 
@@ -53,7 +53,7 @@ export async function POST(req: Request) {
     if (!subscriptionPlan?.isPro) {
       const count = await db.video.count({
         where: {
-          authorId: user.id,
+          userId: user.id,
         },
       })
 
@@ -68,7 +68,7 @@ export async function POST(req: Request) {
     const video = await db.video.create({
       data: {
         title: body.title,
-        authorId: session.user.id,
+        userId: session.user.id,
       },
       select: {
         id: true,

@@ -21,11 +21,11 @@ import {
 import { UploadVideo } from "./components/add-video"
 
 export const metadata: Metadata = {
-  title: "Music App",
-  description: "Example music app using the components.",
+  title: "Library",
+  description: "Library of videos.",
 }
 
-export default function MusicPage() {
+export default function LibraryPage() {
   return (
     <>
       <div className="md:hidden">

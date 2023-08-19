@@ -5,7 +5,6 @@ import z from "zod"
 
 AWS.config.update({
   region: process.env.AWS_REGION,
-
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
 })
@@ -14,15 +13,18 @@ const s3 = new AWS.S3()
 
 export async function POST(req: Request) {
   try {
-    const { fileName, fileType } = await req.json()
+    const { fileName, fileType, id } = await req.json()
 
-    const key = fileName
+    const key = id || fileName
 
     const s3Params = {
       Bucket: process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME,
       Key: `${Date.now()}-${key}`,
       Expires: 60, // Number of seconds before signed URL expires
       ContentType: fileType,
+      Metadata: {
+        id: id || "testing",
+      },
       //   ACL: "public-read", // Depending on your requirements
     }
 
@@ -36,6 +38,6 @@ export async function POST(req: Request) {
       return new Response(JSON.stringify(error.issues), { status: 422 })
     }
 
-    return new Response(null, { status: 500 })
+    return new Response(JSON.stringify(error), { status: 500 })
   }
 }

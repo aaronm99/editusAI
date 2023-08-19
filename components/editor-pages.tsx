@@ -241,7 +241,7 @@ export const PageThree = ({
         </p>
         <Button
           onClick={() => {
-            form.setValue("splitPosition", position)
+            form.setValue("splitPosition", position.toString())
             nextStep()
           }}
         >
@@ -316,50 +316,9 @@ export const PageFour = ({
       </div>
 
       <div>
-        {/* <p>Caption Position: {Math.round(position * 100)}%</p> */}
         <h2 className="text-xl font-semibold">Font</h2>
 
         <div className="my-2 flex space-x-2">
-          {/* <Form {...form}>
-            <form className="w-2/3 space-y-6">
-              <FormField
-                control={form.control}
-                name="font"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Font Family</FormLabel>
-                    <Select
-                      onValueChange={(e: FontType) => {
-                        setSelectedFont((s) => ({
-                          ...s,
-                          family: e.family,
-                          variants: e.variants,
-                        }))
-                        field.onChange(e)
-                      }}
-                    >
-                      <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Select a Font" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectLabel>Fonts</SelectLabel>
-                          {fonts.slice(0, 10).map((font, idx) => {
-                            return (
-                              <SelectItem key={idx} value={font}>
-                                {font.family}
-                              </SelectItem>
-                            )
-                          })}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </FormItem>
-                )}
-              />
-            </form>
-          </Form> */}
-
           <Select
             onValueChange={(e: FontType) => {
               setSelectedFont((s) => ({
@@ -576,7 +535,7 @@ export const PageFour = ({
         <Button
           className="mt-4"
           onClick={() => {
-            // form.setValue("captionPosition", position)
+            form.setValue("captionPosition", "0.4")
             handleCallback()
           }}
         >
@@ -588,9 +547,7 @@ export const PageFour = ({
   )
 }
 
-const fontSizes = [
-  8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 36, 48, 60, 72, 96,
-]
+const fontSizes = [8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 36, 48]
 
 const sentenceLengths = ["1", "2", "3", "4", "5", "6", "7", "8"]
 

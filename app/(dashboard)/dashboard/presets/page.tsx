@@ -5,10 +5,9 @@ import { db } from "@/lib/db"
 import { getCurrentUser } from "@/lib/session"
 import { EmptyPlaceholder } from "@/components/empty-placeholder"
 import { DashboardHeader } from "@/components/header"
-import { VideoCreateButton } from "@/components/video-create-button"
-import { VideoItem } from "@/components/post-item"
 
 import { PresetModal } from "@/components/preset-modal"
+import { PresetItem } from "@/components/preset-item"
 
 export const metadata = {
   title: "Dashboard",
@@ -21,9 +20,9 @@ export default async function PresetPage() {
     redirect(authOptions?.pages?.signIn || "/login")
   }
 
-  const video = await db.preset.findMany({
+  const presets = await db.preset.findMany({
     where: {
-      authorId: user?.id,
+      userId: user?.id,
     },
     select: {
       id: true,
@@ -33,8 +32,10 @@ export default async function PresetPage() {
         select: {
           id: true,
           updatedAt: true,
+          createdAt: true,
           config: true,
-          objectId: true,
+          bucket: true,
+          key: true,
         },
       },
     },
@@ -49,10 +50,10 @@ export default async function PresetPage() {
         <PresetModal />
       </DashboardHeader>
       <div className="mt-8">
-        {video?.length ? (
+        {presets?.length ? (
           <div className="divide-y divide-border rounded-md border">
-            {video.map((video) => (
-              <VideoItem key={video.id} video={video} />
+            {presets.map((preset) => (
+              <PresetItem key={preset.id} preset={preset} />
             ))}
           </div>
         ) : (
@@ -62,7 +63,7 @@ export default async function PresetPage() {
             <EmptyPlaceholder.Description>
               You don&apos;t have any presets yet. Start creating content.
             </EmptyPlaceholder.Description>
-            <VideoCreateButton variant="outline" />
+            <PresetModal />
           </EmptyPlaceholder>
         )}
       </div>

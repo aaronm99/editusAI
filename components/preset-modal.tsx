@@ -28,9 +28,12 @@ import { useRef, useState } from "react"
 import { DialogClose } from "@radix-ui/react-dialog"
 import { useToast } from "./ui/use-toast"
 import { PresetSchema } from "@/types/schema"
+import { useRouter } from "next/navigation"
 
 export const PresetModal = () => {
   const { toast } = useToast()
+  const router = useRouter()
+
   const closeRef = useRef<HTMLButtonElement>(null)
 
   const form = useForm<z.infer<typeof PresetSchema>>({})
@@ -56,6 +59,7 @@ export const PresetModal = () => {
         description: `Preset '${data.name}' created successfully`,
       })
       closeRef.current && closeRef.current.click()
+      router.refresh()
     } catch (error) {
       toast({
         title: "An error occurred",

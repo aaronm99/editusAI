@@ -19,7 +19,7 @@ export async function POST(req: Request) {
     const video = await db.preset.create({
       data: {
         title: body.name,
-        authorId: session.user.id,
+        userId: session.user.id,
       },
       select: {
         id: true,

@@ -12,7 +12,7 @@ import * as z from "zod"
 import { Icons } from "@/components/icons"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { toast } from "@/components/ui/use-toast"
-import { cn } from "@/lib/utils"
+import { cn, uploadToS3 } from "@/lib/utils"
 import { postPatchSchema } from "@/lib/validations/post"
 import "@/styles/editor.css"
 import { FormSchema } from "@/types/schema"
@@ -20,12 +20,13 @@ import { PageFour, PageOne, PageThree, PageTwo } from "./editor-pages"
 import { Progress } from "./ui/progress"
 
 interface EditorProps {
-  video: Pick<Video, "id" | "title" | "published" | "config">
+  video: Pick<Video, "id" | "title" | "status" | "config">
+  template?: boolean
 }
 
 type FormData = z.infer<typeof postPatchSchema>
 
-export function Editor({ video }: EditorProps) {
+export function Editor({ video, template }: EditorProps) {
   const { register, handleSubmit } = useForm<FormData>({
     resolver: zodResolver(postPatchSchema),
   })
@@ -38,13 +39,16 @@ export function Editor({ video }: EditorProps) {
   const [currentStep, setCurrentStep] = React.useState<number>(1)
   const [position, setPosition] = React.useState(0.5)
 
-  const totalSteps = 4
+  const totalSteps = template ? 3 : 4
 
   const inputRef = React.useRef<HTMLInputElement>(null)
   const secondaryInputRef = React.useRef<HTMLInputElement>(null)
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
+    defaultValues: {
+      title: video.title,
+    },
   })
 
   const handleFileChange = (
@@ -61,35 +65,52 @@ export function Editor({ video }: EditorProps) {
         : setFile(e.dataTransfer.files[0])
     }
   }
-
+  console.log(form.formState.errors, "form errors")
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    setIsSaving(true)
+    try {
+      setIsSaving(true)
 
-    const response = await fetch(`/api/videos/${video.id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        content: data,
-      }),
-    })
+      const url = template ? "/api/template/" : "/api/videos/"
 
-    setIsSaving(false)
+      console.log(data, "data")
+      const response = await fetch(`${url}${video.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          content: data,
+        }),
+      })
 
-    if (!response?.ok) {
-      return toast({
+      const json = await response.json()
+
+      const upload = file && uploadToS3(file, json.id.id)
+
+      setIsSaving(false)
+
+      if (!response?.ok) {
+        return toast({
+          title: "Something went wrong.",
+          description: "Your video was not saved. Please try again.",
+          variant: "destructive",
+        })
+      }
+
+      router.refresh()
+
+      toast({
+        description: "Your video has been saved.",
+      })
+      router.push("/dashboard")
+    } catch (error) {
+      toast({
         title: "Something went wrong.",
         description: "Your video was not saved. Please try again.",
         variant: "destructive",
       })
+      router.push("/dashboard")
     }
-
-    router.refresh()
-
-    return toast({
-      description: "Your video has been saved.",
-    })
   }
 
   function onClick() {
@@ -166,7 +187,7 @@ export function Editor({ video }: EditorProps) {
         </div>
       </div>
 
-      {currentStep === 1 ? (
+      {currentStep === 1 && !template ? (
         <PageOne
           file={file}
           form={form}
@@ -179,7 +200,7 @@ export function Editor({ video }: EditorProps) {
           prevStep={prevStep}
         />
       ) : null}
-      {currentStep === 2 ? (
+      {currentStep === (template ? 1 : 2) ? (
         <PageTwo
           file={fileTwo}
           form={form}
@@ -192,7 +213,7 @@ export function Editor({ video }: EditorProps) {
           prevStep={prevStep}
         />
       ) : null}
-      {currentStep === 3 ? (
+      {currentStep === (template ? 2 : 3) ? (
         <PageThree
           nextStep={nextStep}
           prevStep={prevStep}
@@ -201,7 +222,7 @@ export function Editor({ video }: EditorProps) {
           screenPosition={position}
         />
       ) : null}
-      {currentStep === 4 ? (
+      {currentStep === (template ? 3 : 4) ? (
         <PageFour
           screenPosition={position}
           nextStep={nextStep}

@@ -1,6 +1,6 @@
 import { DashboardHeader } from "@/components/header"
 import { VideoCreateButton } from "@/components/video-create-button"
-import { VideoItem } from "@/components/post-item"
+import { VideoItem } from "@/components/video-item"
 import { DashboardShell } from "@/components/shell"
 
 export default function DashboardLoading() {

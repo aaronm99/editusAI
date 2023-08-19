@@ -1,36 +1,32 @@
-import Link from "next/link"
-import { Video } from "@prisma/client"
+import { Preset } from "@prisma/client"
 
 import { formatDate } from "@/lib/utils"
 import { Skeleton } from "@/components/ui/skeleton"
 import { VideoOperations } from "@/components/video-operations"
+import { TemplateSection } from "./preset-templates"
 
-interface VideoItemProps {
-  video: Pick<Video, "id" | "title" | "published" | "createdAt">
+interface PresetItemProps {
+  preset: Pick<Preset, "id" | "updatedAt" | "createdAt" | "createdAt" | "title">
 }
 
-export function VideoItem({ video }: VideoItemProps) {
+export function PresetItem({ preset }: PresetItemProps) {
   return (
     <div className="flex items-center justify-between p-4">
       <div className="grid gap-1">
-        <Link
-          href={`/editor/${video.id}`}
-          className="font-semibold hover:underline"
-        >
-          {video.title}
-        </Link>
+        <div className="font-semibold hover:underline">{preset.title}</div>
         <div>
           <p className="text-sm text-muted-foreground">
-            {formatDate(video.createdAt?.toDateString())}
+            {formatDate(preset.createdAt?.toDateString())}
           </p>
         </div>
+        <TemplateSection presetId={preset.id} />
       </div>
-      <VideoOperations video={{ id: video.id, title: video.title }} />
+      <VideoOperations video={{ id: preset.id, title: preset.title }} />
     </div>
   )
 }
 
-VideoItem.Skeleton = function VideoItemSkeleton() {
+PresetItem.Skeleton = function PresetItemSkeleton() {
   return (
     <div className="p-4">
       <div className="space-y-3">
