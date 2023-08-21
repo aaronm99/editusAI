@@ -4,7 +4,7 @@ import EditorJS from "@editorjs/editorjs"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Video } from "@prisma/client"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import * as React from "react"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -19,19 +19,18 @@ import { FormSchema } from "@/types/schema"
 import { PageFour, PageOne, PageThree, PageTwo } from "./editor-pages"
 import { Progress } from "./ui/progress"
 
-interface EditorProps {
-  video: Pick<Video, "id" | "title" | "status" | "config">
-  template?: boolean
-}
+interface EditorProps {}
 
 type FormData = z.infer<typeof postPatchSchema>
 
-export function Editor({ video, template }: EditorProps) {
+export function Editor({}: EditorProps) {
   const { register, handleSubmit } = useForm<FormData>({
     resolver: zodResolver(postPatchSchema),
   })
   const ref = React.useRef<EditorJS>()
   const router = useRouter()
+  const params = useSearchParams()
+  const template = params?.get("template")
   const [isSaving, setIsSaving] = React.useState<boolean>(false)
   const [file, setFile] = React.useState<File | undefined>(undefined)
   const [fileTwo, setFileTwo] = React.useState<File | undefined>(undefined)
@@ -47,7 +46,7 @@ export function Editor({ video, template }: EditorProps) {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      title: video.title,
+      title: "Untitled Video",
     },
   })
 
@@ -72,20 +71,20 @@ export function Editor({ video, template }: EditorProps) {
 
       const url = template ? "/api/template/" : "/api/videos/"
 
-      console.log(data, "data")
-      const response = await fetch(`${url}${video.id}`, {
-        method: "PATCH",
+      const response = await fetch(`${url}`, {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           content: data,
+          presetId: template ? params?.get("id") : undefined,
         }),
       })
 
       const json = await response.json()
 
-      const upload = file && uploadToS3(file, json.id.id)
+      // const upload = file && uploadToS3(file, json.id.id)
 
       setIsSaving(false)
 

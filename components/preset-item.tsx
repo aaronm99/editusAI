@@ -19,6 +19,7 @@ export function PresetItem({ preset }: PresetItemProps) {
             {formatDate(preset.createdAt?.toDateString())}
           </p>
         </div>
+        <div className="text-base font-semibold underline">Templates</div>
         <TemplateSection presetId={preset.id} />
       </div>
       <VideoOperations video={{ id: preset.id, title: preset.title }} />

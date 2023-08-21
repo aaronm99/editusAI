@@ -1,12 +1,8 @@
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
+import { TemplateSchema } from "@/types/schema"
 import { getServerSession } from "next-auth"
 import z from "zod"
-
-const postCreateSchema = z.object({
-  title: z.string(),
-  presetId: z.string(),
-})
 
 export async function POST(req: Request) {
   try {
@@ -17,13 +13,14 @@ export async function POST(req: Request) {
     }
 
     const json = await req.json()
-    const body = postCreateSchema.parse(json)
+    const body = TemplateSchema.parse(json)
 
     const template = await db.template.create({
       data: {
-        title: body.title,
+        title: body.content.title,
         bucket: "",
         key: "",
+        config: body.content,
         preset: {
           connect: {
             id: body.presetId,

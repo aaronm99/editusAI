@@ -2,6 +2,8 @@
 import { NextApiRequest, NextApiResponse } from "next"
 import AWS from "aws-sdk"
 import z from "zod"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
 
 AWS.config.update({
   region: process.env.AWS_REGION,
@@ -14,8 +16,14 @@ const s3 = new AWS.S3()
 export async function POST(req: Request) {
   try {
     const { fileName, fileType, id } = await req.json()
+    const session = await getServerSession(authOptions)
 
-    const key = id || fileName
+    if (!session) {
+      return new Response("Unauthorized", { status: 403 })
+    }
+
+    const { user } = session
+    const key = id ? `${user.id}/${id}` : fileName
 
     const s3Params = {
       Bucket: process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME,

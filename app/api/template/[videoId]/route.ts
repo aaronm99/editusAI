@@ -2,6 +2,8 @@ import * as z from "zod"
 
 import { db } from "@/lib/db"
 import { FormSchema } from "@/types/schema"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
 
 const routeContextSchema = z.object({
   params: z.object({
@@ -61,4 +63,37 @@ async function verifyCurrentUserHasAccessToPost(videoId: string) {
   })
 
   return count > 0
+}
+
+export async function GET(
+  req: Request,
+
+  context: z.infer<typeof routeContextSchema>
+) {
+  try {
+    const session = await getServerSession(authOptions)
+
+    if (!session) {
+      return new Response("Unauthorized", { status: 403 })
+    }
+
+    const { params } = routeContextSchema.parse(context)
+
+    const templates = await db.template.findFirst({
+      where: {
+        id: params.videoId,
+      },
+      select: {
+        id: true,
+        title: true,
+        config: true,
+        bucket: true,
+        key: true,
+      },
+    })
+
+    return new Response(JSON.stringify(templates))
+  } catch (error) {
+    return new Response(null, { status: 500 })
+  }
 }

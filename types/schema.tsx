@@ -28,3 +28,13 @@ export const PresetSchema = z.object({
     message: "Name must be at least 2 characters.",
   }),
 })
+
+export const TemplateSchema = z.object({
+  content: FormSchema,
+  presetId: z.string(),
+})
+
+export const VideoSchema = z.object({
+  content: FormSchema,
+  presetId: z.undefined(),
+})
