@@ -35,3 +35,38 @@ export async function POST(req: Request) {
     return new Response(null, { status: 500 })
   }
 }
+
+export async function GET(req: Request) {
+  try {
+    const session = await getServerSession(authOptions)
+
+    if (!session) {
+      return new Response("Unauthorized", { status: 403 })
+    }
+
+    const presets = await db.preset.findMany({
+      where: {
+        userId: session.user.id,
+      },
+      select: {
+        id: true,
+        title: true,
+        createdAt: true,
+        templates: {
+          select: {
+            id: true,
+            title: true,
+            config: true,
+            bucket: true,
+            key: true,
+            createdAt: true,
+          },
+        },
+      },
+    })
+
+    return new Response(JSON.stringify(presets))
+  } catch (error) {
+    return new Response(null, { status: 500 })
+  }
+}

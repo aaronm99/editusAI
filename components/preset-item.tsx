@@ -4,6 +4,7 @@ import { formatDate } from "@/lib/utils"
 import { Skeleton } from "@/components/ui/skeleton"
 import { VideoOperations } from "@/components/video-operations"
 import { TemplateSection } from "./preset-templates"
+import { format } from "date-fns"
 
 interface PresetItemProps {
   preset: Pick<Preset, "id" | "updatedAt" | "createdAt" | "createdAt" | "title">
@@ -15,9 +16,11 @@ export function PresetItem({ preset }: PresetItemProps) {
       <div className="grid gap-1">
         <div className="font-semibold hover:underline">{preset.title}</div>
         <div>
-          <p className="text-sm text-muted-foreground">
-            {formatDate(preset.createdAt?.toDateString())}
-          </p>
+          {preset.createdAt ? (
+            <p className="text-sm text-muted-foreground">
+              {format(new Date(preset.createdAt), "do MMMM yyyy")}
+            </p>
+          ) : null}
         </div>
         <div className="text-base font-semibold underline">Templates</div>
         <TemplateSection presetId={preset.id} />

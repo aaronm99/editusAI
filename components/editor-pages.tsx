@@ -441,6 +441,7 @@ export const PageFour = ({
                       <Checkbox
                         checked={field.value}
                         onCheckedChange={field.onChange}
+                        defaultValue={field.value}
                       />
                     </FormControl>
                     <div className="space-y-1 leading-none">

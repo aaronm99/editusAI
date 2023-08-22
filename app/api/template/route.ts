@@ -62,6 +62,7 @@ export async function GET(req: Request) {
         config: true,
         bucket: true,
         key: true,
+        createdAt: true,
       },
     })
 

@@ -6,18 +6,11 @@ import { FormSchema } from "@/types/schema"
 import { Template } from "@prisma/client"
 import { useEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
+import z from "zod"
+import { DataTableDemo } from "./table"
 import { TemplateCreateButton } from "./template-create-button"
 import { Button } from "./ui/button"
 import { Checkbox } from "./ui/checkbox"
-import z from "zod"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "./ui/dialog"
 import { Form, FormControl, FormField, FormItem } from "./ui/form"
 import { Label } from "./ui/label"
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group"
@@ -30,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select"
-import { VideoOperations } from "./video-operations"
+import { toast } from "./ui/use-toast"
 
 type Props = {
   presetId?: string
@@ -38,9 +31,8 @@ type Props = {
 
 export const TemplateSection = ({ presetId }: Props) => {
   const viewRef = useRef<HTMLButtonElement>(null)
+  const closeRef = useRef<HTMLButtonElement>(null)
   const [templates, setTemplates] = useState<Template[] | []>([])
-
-  console.log(templates, "templates")
 
   useEffect(() => {
     const templates = async () => {
@@ -53,42 +45,31 @@ export const TemplateSection = ({ presetId }: Props) => {
     viewRef.current?.click()
   }
 
+  const handleClose = () => {
+    closeRef.current?.click()
+  }
+
   return (
     <>
-      {templates.map((template) => {
-        return (
-          <div
-            key={template.id}
-            className="flex w-full cursor-pointer items-center justify-between hover:underline"
-          >
-            <div onClick={() => handleClick()}>{template.title}</div>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="default" className="hidden" ref={viewRef}>
-                  Edit Preset
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[725px]">
-                <DialogHeader>
-                  <DialogTitle>Customise Preset</DialogTitle>
-                  <DialogDescription>
-                    Customise your preset to use.
-                  </DialogDescription>
-                </DialogHeader>
-                <Settings config={template.config} />
-              </DialogContent>
-            </Dialog>
-          </div>
-        )
-      })}
-      <TemplateCreateButton id={presetId} />
+      <DataTableDemo templates={templates} />
+      <div className="mt-2 w-full">
+        <TemplateCreateButton id={presetId} />
+      </div>
     </>
   )
 }
 
-const Settings = ({ config }: { config: typeof FormSchema }) => {
+export const Settings = ({
+  config,
+  id,
+  close,
+}: {
+  config: typeof FormSchema
+  id: string
+  close: () => void
+}) => {
   // video on left
-  const [fonts, setFonts] = useState([])
+  const [fonts, setFonts] = useState<FontType[]>([])
   const [selectedFont, setSelectedFont] = useState({})
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -108,15 +89,13 @@ const Settings = ({ config }: { config: typeof FormSchema }) => {
       )
     }
     fetchFonts()
-  }, [form])
+  }, [config.caption.font.family])
 
   console.log(form.formState.errors, "errors")
   const submit = async (data: z.infer<typeof FormSchema>) => {
-    console.log(data, "data")
-
     try {
-      const res = await fetch(`/api/template`, {
-        method: "POST",
+      const res = await fetch(`/api/template/${id}`, {
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
@@ -124,7 +103,26 @@ const Settings = ({ config }: { config: typeof FormSchema }) => {
           content: data,
         }),
       })
-    } catch (error) {}
+
+      if (!res.ok) {
+        throw new Error("Something went wrong.")
+      }
+
+      close()
+      return toast({
+        title: "Template updated successfully.",
+        description: "Your template has been updated.",
+        variant: "default",
+      })
+    } catch (error) {
+      close()
+
+      return toast({
+        title: "Something went wrong.",
+        description: "Your template was not saved. Please try again.",
+        variant: "destructive",
+      })
+    }
   }
 
   return (
@@ -140,8 +138,8 @@ const Settings = ({ config }: { config: typeof FormSchema }) => {
               render={({ field }) => (
                 <FormItem>
                   <Select
-                    onValueChange={() => {
-                      field.onChange
+                    onValueChange={(e) => {
+                      field.onChange(e)
                       setSelectedFont(
                         fonts.find((font) => font.family === field.value) || {}
                       )

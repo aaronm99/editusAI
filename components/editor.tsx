@@ -2,7 +2,6 @@
 
 import EditorJS from "@editorjs/editorjs"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Video } from "@prisma/client"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import * as React from "react"
@@ -12,11 +11,12 @@ import * as z from "zod"
 import { Icons } from "@/components/icons"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { toast } from "@/components/ui/use-toast"
-import { cn, uploadToS3 } from "@/lib/utils"
+import { cn } from "@/lib/utils"
 import { postPatchSchema } from "@/lib/validations/post"
 import "@/styles/editor.css"
 import { FormSchema } from "@/types/schema"
 import { PageFour, PageOne, PageThree, PageTwo } from "./editor-pages"
+import { Decision } from "./picker"
 import { Progress } from "./ui/progress"
 
 interface EditorProps {}
@@ -38,7 +38,7 @@ export function Editor({}: EditorProps) {
   const [currentStep, setCurrentStep] = React.useState<number>(1)
   const [position, setPosition] = React.useState(0.5)
 
-  const totalSteps = template ? 3 : 4
+  const totalSteps = template ? 3 : 5
 
   const inputRef = React.useRef<HTMLInputElement>(null)
   const secondaryInputRef = React.useRef<HTMLInputElement>(null)
@@ -47,6 +47,9 @@ export function Editor({}: EditorProps) {
     resolver: zodResolver(FormSchema),
     defaultValues: {
       title: "Untitled Video",
+      caption: {
+        nouns: false,
+      },
     },
   })
 
@@ -151,6 +154,16 @@ export function Editor({}: EditorProps) {
   // const backProps =
   //   currentStep === 1 ? { href: "/dashboard" } : { onClick: () => prevStep() }
 
+  function handleCallback(presetId: string) {
+    try {
+      if (!presetId) return nextStep()
+      form.setValue("presetId", presetId)
+      form.handleSubmit(onSubmit)()
+    } catch (error) {
+      console.log(error, "error")
+    }
+  }
+
   return (
     <div>
       <div className="flex w-full items-center justify-between">
@@ -199,7 +212,10 @@ export function Editor({}: EditorProps) {
           prevStep={prevStep}
         />
       ) : null}
-      {currentStep === (template ? 1 : 2) ? (
+      {currentStep === 2 && !template ? (
+        <Decision handleCallback={handleCallback} />
+      ) : null}
+      {currentStep === (template ? 1 : 3) ? (
         <PageTwo
           file={fileTwo}
           form={form}
@@ -212,7 +228,7 @@ export function Editor({}: EditorProps) {
           prevStep={prevStep}
         />
       ) : null}
-      {currentStep === (template ? 2 : 3) ? (
+      {currentStep === (template ? 2 : 4) ? (
         <PageThree
           nextStep={nextStep}
           prevStep={prevStep}
@@ -221,7 +237,7 @@ export function Editor({}: EditorProps) {
           screenPosition={position}
         />
       ) : null}
-      {currentStep === (template ? 3 : 4) ? (
+      {currentStep === (template ? 3 : 5) ? (
         <PageFour
           screenPosition={position}
           nextStep={nextStep}
@@ -244,35 +260,4 @@ export function Editor({}: EditorProps) {
       />
     </div>
   )
-}
-
-const json = {
-  id: "ckqk1qj5h0000g1l6q6q1q1q1",
-  primaryVideo: {
-    title: "shadcn",
-    objectId: "/path/to/object",
-  },
-  secondaryVideo: {
-    title: "shadcn",
-    objectId: "/path/to/object",
-  },
-  splitPosition: 0.5,
-  caption: {
-    position: 0.5,
-    font: {
-      family: "Roboto",
-      size: 16,
-      color: "#000000",
-      weight: "700",
-    },
-    sentence: {
-      length: 4,
-      casing: "sentences",
-      highlight: {
-        keywords: ["shadcn", "shadcn", "shadcn", "shadcn"],
-        nouns: true,
-        color: "#000000",
-      },
-    },
-  },
 }
