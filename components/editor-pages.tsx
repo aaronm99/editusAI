@@ -11,6 +11,8 @@ import React from "react"
 import { EmptyPlaceholder } from "./empty-placeholder"
 import { Button } from "./ui/button"
 import { Checkbox } from "./ui/checkbox"
+import { BlockPicker } from "react-color"
+
 import {
   Form,
   FormControl,
@@ -37,6 +39,7 @@ import yellowGradient from "../public/images/yellowgradient.png"
 import ReactCompareImage from "react-compare-image"
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group"
 import { Label } from "./ui/label"
+import { Casing } from "@prisma/client"
 
 export const PageOne = ({
   file,
@@ -263,6 +266,8 @@ export const PageFour = ({
     variants: [],
   })
 
+  const [selectedColour, setSelectedColour] = React.useState<string>("#000")
+
   const screenSplit = screenPosition * 100
 
   React.useEffect(() => {
@@ -419,7 +424,7 @@ export const PageFour = ({
             <SelectContent>
               <SelectGroup>
                 <SelectLabel>Casing</SelectLabel>
-                {sentenceCasing.map((casing) => {
+                {Object.values(Casing).map((casing) => {
                   return (
                     <SelectItem key={casing} value={casing}>
                       {casing}
@@ -434,9 +439,9 @@ export const PageFour = ({
             <form className="space-y-6">
               <FormField
                 control={form.control}
-                name="caption.nouns"
+                name="caption.sentence.highlight.nouns"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border px-[22px] py-3">
+                  <FormItem className="flex flex-row items-center justify-center space-x-2 space-y-0 rounded-md border px-[26px] py-3">
                     <FormControl>
                       <Checkbox
                         checked={field.value}
@@ -444,10 +449,10 @@ export const PageFour = ({
                         defaultValue={field.value}
                       />
                     </FormControl>
-                    <div className="space-y-1 leading-none">
+                    <div className="flex items-center justify-center leading-none">
                       <label
                         htmlFor="nouns"
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        className="mb-0.5 flex text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                       >
                         Highlight Nouns
                       </label>
@@ -459,7 +464,7 @@ export const PageFour = ({
           </Form>
         </div>
         {/* TODO: Fix this */}
-        <p
+        {/* <p
           style={{
             fontFamily: selectedFont.family || undefined,
             fontWeight:
@@ -467,76 +472,150 @@ export const PageFour = ({
           }}
         >
           This is sample text.
-        </p>
+        </p> */}
 
         <h2 className="text-xl font-semibold">Positioning</h2>
 
-        <RadioGroup defaultValue="card" className="grid grid-cols-3 gap-4">
-          <Label
-            htmlFor="card"
-            className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary"
-          >
-            <RadioGroupItem value="card" id="card" className="sr-only" />
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              className="mb-3 h-6 w-6"
-            >
-              <rect width="20" height="14" x="2" y="5" rx="2" />
-              <path d="M2 10h20" />
-            </svg>
-            Top
-          </Label>
-          <Label
-            htmlFor="paypal"
-            className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary"
-          >
-            <RadioGroupItem value="paypal" id="paypal" className="sr-only" />
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              className="mb-3 h-6 w-6"
-            >
-              <rect width="20" height="14" x="2" y="5" rx="2" />
-              <path d="M2 10h20" />
-            </svg>
-            Middle
-          </Label>
-          <Label
-            htmlFor="apple"
-            className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary"
-          >
-            <RadioGroupItem value="apple" id="apple" className="sr-only" />
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              className="mb-3 h-6 w-6"
-            >
-              <rect width="20" height="14" x="2" y="5" rx="2" />
-              <path d="M2 10h20" />
-            </svg>
-            Bottom
-          </Label>
-        </RadioGroup>
+        <Form {...form}>
+          <FormField
+            control={form.control}
+            name="captionPosition"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <RadioGroup
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    className="mx-auto mt-2 grid grid-cols-3 gap-4"
+                  >
+                    <Label
+                      htmlFor="top"
+                      className="flex cursor-pointer flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary"
+                    >
+                      <FormItem>
+                        <FormControl>
+                          <RadioGroupItem
+                            value="0.1"
+                            id="top"
+                            className="sr-only"
+                            defaultChecked
+                          />
+                        </FormControl>
+                      </FormItem>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        className="mb-3 h-6 w-6"
+                      >
+                        <rect width="20" height="14" x="2" y="5" rx="2" />
+                        <path d="M2 10h20" />
+                      </svg>
+                      Top
+                    </Label>
+                    <Label
+                      htmlFor="middle"
+                      className="flex cursor-pointer flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary"
+                    >
+                      <FormItem>
+                        <FormControl>
+                          <RadioGroupItem
+                            value="0.5"
+                            id="middle"
+                            className="sr-only"
+                          />
+                        </FormControl>
+                      </FormItem>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        className="mb-3 h-6 w-6"
+                      >
+                        <rect width="20" height="14" x="2" y="5" rx="2" />
+                        <path d="M2 10h20" />
+                      </svg>
+                      Middle
+                    </Label>
+                    <Label
+                      htmlFor="bottom"
+                      className="flex cursor-pointer flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary"
+                    >
+                      <FormItem>
+                        <FormControl>
+                          <RadioGroupItem
+                            value="0.9"
+                            id="bottom"
+                            className="sr-only"
+                          />
+                        </FormControl>
+                      </FormItem>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        className="mb-3 h-6 w-6"
+                      >
+                        <rect width="20" height="14" x="2" y="5" rx="2" />
+                        <path d="M2 10h20" />
+                      </svg>
+                      Bottom
+                    </Label>
+                  </RadioGroup>
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        </Form>
+
+        {form.watch("caption.sentence.highlight.nouns") ? (
+          <>
+            <h2 className="mb-4 mt-2 text-xl font-semibold">Keyword Colour</h2>
+
+            <BlockPicker
+              styles={{
+                default: {
+                  card: {
+                    backgroundColor: "transparent",
+                  },
+                  input: {
+                    backgroundColor: "#fff",
+                    color: "#000",
+                  },
+                  triangle: {
+                    position: "absolute",
+                    left: 27,
+                  },
+                },
+              }}
+              color={selectedColour}
+              onChange={(color) => {
+                setSelectedColour(color.hex)
+                console.log(color.hex, "xx23")
+                form.setValue("caption.sentence.highlight.colour", color.hex)
+              }}
+            />
+          </>
+        ) : null}
         <Button
           className="mt-4"
           onClick={() => {
-            form.setValue("captionPosition", "0.4")
+            if (!form.getValues("caption.sentence.highlight.nouns")) {
+              form.setValue("caption.sentence.highlight.colour", null)
+            }
+
             handleCallback()
           }}
         >
@@ -551,5 +630,3 @@ export const PageFour = ({
 const fontSizes = [8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 36, 48]
 
 const sentenceLengths = ["1", "2", "3", "4", "5", "6", "7", "8"]
-
-const sentenceCasing = ["Sentences", "Words", "Uppercase", "Lowercase"]

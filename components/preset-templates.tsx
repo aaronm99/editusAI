@@ -3,7 +3,7 @@
 import { getTemplates } from "@/lib/utils"
 import { FontType } from "@/types/editor"
 import { FormSchema } from "@/types/schema"
-import { Template } from "@prisma/client"
+import { Casing, Template } from "@prisma/client"
 import { useEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import z from "zod"
@@ -274,7 +274,7 @@ export const Settings = ({
                     <SelectContent>
                       <SelectGroup>
                         <SelectLabel>Casing</SelectLabel>
-                        {sentenceCasing.map((casing) => {
+                        {Object.values(Casing).map((casing) => {
                           return (
                             <SelectItem key={casing} value={casing}>
                               {casing}
@@ -290,7 +290,7 @@ export const Settings = ({
 
             <FormField
               control={form.control}
-              name="caption.nouns"
+              name="caption.sentence.highlight.nouns"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border px-[22px] py-3">
                   <FormControl>
@@ -397,5 +397,3 @@ export const Settings = ({
 const fontSizes = [8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30]
 
 const sentenceLengths = ["1", "2", "3", "4", "5", "6", "7", "8"]
-
-const sentenceCasing = ["Sentences", "Words", "Uppercase", "Lowercase"]

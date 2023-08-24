@@ -9,6 +9,7 @@ import { VideoCreateButton } from "@/components/video-create-button"
 import { VideoItem } from "@/components/video-item"
 import { DashboardShell } from "@/components/shell"
 import { ProcessingVideo } from "@/components/process-video"
+import { VideoStatus } from "@prisma/client"
 
 export const metadata = {
   title: "Dashboard",
@@ -27,22 +28,26 @@ export default async function DashboardPage() {
     },
     select: {
       id: true,
-      title: true,
       status: true,
-      createdAt: true,
     },
     orderBy: {
       updatedAt: "desc",
     },
   })
 
-  const draftVideos = video.filter((video) => video.status === "draft")
-  const processingVideos = video.filter(
-    (video) => video.status === "processing"
+  const draftVideos = video.filter(
+    (video) => video.status === VideoStatus.DRAFT
   )
-  const reviewVideos = video.filter((video) => video.status === "review")
+  const processingVideos = video.filter(
+    (video) => video.status === VideoStatus.PROGRESS
+  )
+  const reviewVideos = video.filter(
+    (video) => video.status === VideoStatus.PROGRESS
+  )
 
-  const completeVideos = video.filter((video) => video.status === "complete")
+  const completeVideos = video.filter(
+    (video) => video.status === VideoStatus.PUBLISHED
+  )
 
   return (
     <DashboardShell>

@@ -25,13 +25,15 @@ export async function POST(req: Request) {
     const { user } = session
     const key = id ? `${user.id}/${id}` : fileName
 
+    const updatedKey = `${Date.now()}-${key}`
+
     const s3Params = {
       Bucket: process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME,
-      Key: `${Date.now()}-${key}`,
+      Key: updatedKey,
       Expires: 60, // Number of seconds before signed URL expires
       ContentType: fileType,
       Metadata: {
-        id: id || "testing",
+        id: id || "",
       },
       //   ACL: "public-read", // Depending on your requirements
     }
@@ -40,7 +42,10 @@ export async function POST(req: Request) {
 
     const url = `https://${process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`
     console.log({ url })
-    return new Response(JSON.stringify({ signedRequest, url }), { status: 200 })
+    return new Response(
+      JSON.stringify({ signedRequest, url, key: updatedKey }),
+      { status: 200 }
+    )
   } catch (error) {
     if (error instanceof z.ZodError) {
       return new Response(JSON.stringify(error.issues), { status: 422 })

@@ -3,6 +3,7 @@ import { Preset } from "@prisma/client"
 import { format } from "date-fns"
 import React from "react"
 import { useForm } from "react-hook-form"
+import { EmptyPlaceholder } from "./empty-placeholder"
 import { TemplateSection } from "./preset-templates"
 import { Button } from "./ui/button"
 import { Form, FormControl, FormField, FormItem } from "./ui/form"
@@ -55,6 +56,8 @@ export const Decision = ({
       setSelectedPreset(null)
     }
   }, [type, form])
+
+  const presetLength = presets.filter((x) => x.templates.length).length
 
   return (
     <>
@@ -142,17 +145,25 @@ export const Decision = ({
         </div>
       </Form>
 
-      {type === "preset"
-        ? presets.map((preset) => (
-            <PresetItem
-              key={preset.id}
-              preset={preset}
-              outlined
-              handleSelectPreset={handleSelectPreset}
-              selected={selectedPreset?.id}
-            />
-          ))
-        : null}
+      {type === "preset" && presetLength ? (
+        presets.map((preset) => (
+          <PresetItem
+            key={preset.id}
+            preset={preset}
+            outlined
+            handleSelectPreset={handleSelectPreset}
+            selected={selectedPreset?.id}
+          />
+        ))
+      ) : type === "preset" ? (
+        <EmptyPlaceholder className="mt-4">
+          <EmptyPlaceholder.Icon name="video" />
+          <EmptyPlaceholder.Title>No Presets</EmptyPlaceholder.Title>
+          <EmptyPlaceholder.Description>
+            You don&apos;t have any presets that have templates.
+          </EmptyPlaceholder.Description>
+        </EmptyPlaceholder>
+      ) : null}
     </>
   )
 }

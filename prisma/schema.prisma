@@ -38,18 +38,21 @@ model Session {
 }
 
 model User {
-  id                     String    @id @default(cuid())
+  id                     String     @id @default(cuid())
+  createdAt              DateTime   @default(now()) @map("created_at")
+  updatedAt              DateTime   @default(now()) @map("updated_at")
   name                   String?
-  email                  String?   @unique
+  email                  String?    @unique
   emailVerified          DateTime?
   image                  String?
-  createdAt              DateTime  @default(now()) @map("created_at")
-  updatedAt              DateTime  @default(now()) @map("updated_at")
-  stripeCustomerId       String?   @unique @map("stripe_customer_id")
-  stripeSubscriptionId   String?   @unique @map("stripe_subscription_id")
-  stripePriceId          String?   @map("stripe_price_id")
-  stripeCurrentPeriodEnd DateTime? @map("stripe_current_period_end")
+  stripeCustomerId       String?    @unique @map("stripe_customer_id")
+  stripeSubscriptionId   String?    @unique @map("stripe_subscription_id")
+  stripePriceId          String?    @map("stripe_price_id")
+  stripeCurrentPeriodEnd DateTime?  @map("stripe_current_period_end")
   password               String
+  userConfigId           String     @unique
+  userConfig             UserConfig @relation(fields: [userConfigId], references: [id])
+  Videos                 Video[]
 
   @@map("users")
 }
@@ -63,40 +66,82 @@ model VerificationToken {
   @@map("verification_tokens")
 }
 
-model Video {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @map("updated_at")
-  userId    String
-  config    Json?
-  title     String
-  status    String   @default("draft")
+model Config {
+  id              String       @id @default(cuid())
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @default(now()) @map("updated_at")
+  title           String
+  videoSplitRatio Decimal
+  fontName        String
+  fontSize        Int
+  fontWeight      String
+  nouns           Boolean      @default(true)
+  sentenceLength  Int
+  sentenceCasing  Casing       @default(WORDS)
+  textPosition    Position     @default(TOP)
+  VideoConfig     VideoConfig?
+  UserConfig      UserConfig?
 
-  @@map("videos")
-}
-
-model Preset {
-  id        String     @id @default(cuid())
-  createdAt DateTime   @default(now()) @map("created_at")
-  updatedAt DateTime   @default(now()) @map("updated_at")
-  userId    String
-  title     String
-  templates Template[]
-
-  @@map("presets")
-}
-
-model Template {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @map("updated_at")
-  presetId  String
-  title     String
-  bucket    String?
-  key       String?
-  config    Json?
-  preset    Preset?   @relation(fields: [presetId], references: [id])
-
-  @@index([presetId])
   @@map("templates")
+}
+
+model VideoConfig {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  videoId   String
+  configId  String   @unique
+  video     Video?
+  config    Config   @relation(fields: [configId], references: [id])
+}
+
+model UserConfig {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
+  configId  String   @unique
+  user      User?
+  config    Config   @relation(fields: [configId], references: [id])
+}
+
+model Video {
+  id          String      @id @default(cuid())
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  userId      String
+  bucket      String
+  key         String
+  type        VIDEO_TYPE
+  configId    String      @unique
+  status      VideoStatus @default(DRAFT)
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  videoConfig VideoConfig @relation(fields: [configId], references: [id])
+
+  @@index([userId])
+}
+
+enum VIDEO_TYPE {
+  PRIMARY
+  SECONDARY
+}
+
+enum Position {
+  TOP
+  CENTER
+  BOTTOM
+}
+
+enum VideoStatus {
+  DRAFT
+  PUBLISHED
+  PROGRESS
+  FAILED
+}
+
+enum Casing {
+  LOWER
+  UPPER
+  SENTENCES
+  WORDS
 }

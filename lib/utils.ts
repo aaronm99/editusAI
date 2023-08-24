@@ -1,6 +1,7 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import axios from "axios"
+import { VIDEO_TYPE } from "@prisma/client"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -27,7 +28,7 @@ export function formatFileSize(sizeInBytes) {
   }
 }
 
-export async function uploadToS3(file: File, id?: string) {
+export async function uploadToS3(file: File, id?: string, type?: VIDEO_TYPE) {
   if (!file) return
 
   console.log("Getting S3 presigned URL...")
@@ -36,8 +37,6 @@ export async function uploadToS3(file: File, id?: string) {
     fileType: file.type,
     id,
   })
-
-  console.log(file.name, "file.name")
 
   console.log("response: ", response)
 
@@ -58,6 +57,16 @@ export async function uploadToS3(file: File, id?: string) {
   console.log("signedRequest: ", signedRequest)
 
   await axios.put(signedRequest, file, options)
+
+  const res = await axios.post("/api/s3-video", {
+    id,
+    type,
+    key: response.data.key,
+  })
+
+  const data = res.data
+
+  return data
 }
 
 export const getTemplates = async () => {

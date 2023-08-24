@@ -6,6 +6,7 @@ import { db } from "@/lib/db"
 import { RequiresProPlanError } from "@/lib/exceptions"
 import { getUserSubscriptionPlan } from "@/lib/subscription"
 import { FormSchema, VideoSchema } from "@/types/schema"
+import { Position } from "@prisma/client"
 
 export async function GET() {
   try {
@@ -19,7 +20,6 @@ export async function GET() {
     const posts = await db.video.findMany({
       select: {
         id: true,
-        title: true,
         status: true,
         createdAt: true,
       },
@@ -42,38 +42,29 @@ export async function POST(req: Request) {
       return new Response("Unauthorized", { status: 403 })
     }
 
-    // const subscriptionPlan = await getUserSubscriptionPlan(user.id)
-
-    // If user is on a free plan.
-    // Check if user has reached limit of 3 posts.
-    // if (!subscriptionPlan?.isPro) {
-    //   const count = await db.video.count({
-    //     where: {
-    //       userId: user.id,
-    //     },
-    //   })
-
-    //   if (count >= 3) {
-    //     throw new RequiresProPlanError()
-    //   }
-    // }
-
     const json = await req.json()
-    console.log(json, "json")
     const body = VideoSchema.parse(json)
 
-    const video = await db.video.create({
+    const data = body.content
+
+    const config = await db.config.create({
       data: {
-        title: body.content.title,
-        userId: session.user.id,
-        config: body.content,
+        title: data.title,
+        videoSplitRatio: Number(data.splitPosition).toFixed(2),
+        fontName: data.caption.font.family,
+        fontSize: data.caption.font.size,
+        fontWeight: data.caption.font.weight,
+        nouns: data.caption.sentence.highlight.nouns,
+        sentenceLength: Number(data.caption.sentence.length),
+        sentenceCasing: data.caption.sentence.casing,
+        textPosition: Position.CENTER,
       },
       select: {
         id: true,
       },
     })
 
-    return new Response(JSON.stringify(video))
+    return new Response(JSON.stringify(config))
   } catch (error) {
     if (error instanceof z.ZodError) {
       return new Response(JSON.stringify(error.issues), { status: 422 })
@@ -83,6 +74,6 @@ export async function POST(req: Request) {
       return new Response("Requires Pro Plan", { status: 402 })
     }
 
-    return new Response(null, { status: 500 })
+    return new Response(error, { status: 500 })
   }
 }

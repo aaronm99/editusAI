@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { VideoOperations } from "@/components/video-operations"
 
 interface VideoItemProps {
-  video: Pick<Video, "id" | "title" | "status" | "createdAt">
+  video: Pick<Video, "id" | "title" | "createdAt">
 }
 
 export function VideoItem({ video }: VideoItemProps) {
@@ -17,7 +17,7 @@ export function VideoItem({ video }: VideoItemProps) {
           href={`/editor/${video.id}`}
           className="font-semibold hover:underline"
         >
-          {video.title}
+          {video?.title}
         </Link>
         <div>
           <p className="text-sm text-muted-foreground">

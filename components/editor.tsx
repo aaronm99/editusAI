@@ -11,13 +11,14 @@ import * as z from "zod"
 import { Icons } from "@/components/icons"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { toast } from "@/components/ui/use-toast"
-import { cn } from "@/lib/utils"
+import { cn, uploadToS3 } from "@/lib/utils"
 import { postPatchSchema } from "@/lib/validations/post"
 import "@/styles/editor.css"
-import { FormSchema } from "@/types/schema"
+import { FormPresetSchema, FormSchema } from "@/types/schema"
 import { PageFour, PageOne, PageThree, PageTwo } from "./editor-pages"
 import { Decision } from "./picker"
 import { Progress } from "./ui/progress"
+import { VIDEO_TYPE } from "@prisma/client"
 
 interface EditorProps {}
 
@@ -48,9 +49,17 @@ export function Editor({}: EditorProps) {
     defaultValues: {
       title: "Untitled Video",
       caption: {
-        nouns: false,
+        sentence: {
+          highlight: {
+            nouns: false,
+          },
+        },
       },
     },
+  })
+
+  const presetForm = useForm<z.infer<typeof FormPresetSchema>>({
+    resolver: zodResolver(FormPresetSchema),
   })
 
   const handleFileChange = (
@@ -68,6 +77,7 @@ export function Editor({}: EditorProps) {
     }
   }
   console.log(form.formState.errors, "form errors")
+
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
       setIsSaving(true)
@@ -87,19 +97,37 @@ export function Editor({}: EditorProps) {
 
       const json = await response.json()
 
-      // const upload = file && uploadToS3(file, json.id.id)
+      const configId = json.id
+
+      const upload =
+        file && (await uploadToS3(file, configId, VIDEO_TYPE.PRIMARY))
+
+      console.log(upload, "upload something")
+
+      const videoId = upload.id
+
+      // const secondaryUpload =
+
+      const videoConfig = await fetch("api/video-config", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          videoId,
+          configId,
+        }),
+      })
 
       setIsSaving(false)
 
-      if (!response?.ok) {
+      if (!response?.ok || !videoConfig?.ok) {
         return toast({
           title: "Something went wrong.",
           description: "Your video was not saved. Please try again.",
           variant: "destructive",
         })
       }
-
-      router.refresh()
 
       toast({
         description: "Your video has been saved.",
@@ -113,6 +141,28 @@ export function Editor({}: EditorProps) {
       })
       router.push("/dashboard")
     }
+  }
+
+  async function presetSubmit(data: z.infer<typeof FormPresetSchema>) {
+    try {
+      setIsSaving(true)
+
+      const response = await fetch(`/api/preset-video`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          content: data,
+        }),
+      })
+
+      const json = await response.json()
+
+      // const upload = file && uploadToS3(file, json.id.id)
+
+      router.push("/dashboard")
+    } catch (error) {}
   }
 
   function onClick() {
@@ -157,8 +207,9 @@ export function Editor({}: EditorProps) {
   function handleCallback(presetId: string) {
     try {
       if (!presetId) return nextStep()
-      form.setValue("presetId", presetId)
-      form.handleSubmit(onSubmit)()
+      presetForm.setValue("presetId", presetId)
+      presetForm.setValue("title", form.getValues("title"))
+      presetForm.handleSubmit(presetSubmit)()
     } catch (error) {
       console.log(error, "error")
     }
