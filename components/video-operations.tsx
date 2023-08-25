@@ -25,15 +25,19 @@ import {
 import { toast } from "@/components/ui/use-toast"
 import { Icons } from "@/components/icons"
 
-async function deleteVideo(videoID: string) {
-  const response = await fetch(`/api/videos/${videoID}`, {
+async function deleteVideo(videoID: string, preset?: boolean) {
+  const url = preset ? `/api/presets/${videoID}` : `/api/videos/${videoID}`
+
+  const response = await fetch(url, {
     method: "DELETE",
   })
 
   if (!response?.ok) {
     toast({
       title: "Something went wrong.",
-      description: "Your video was not deleted. Please try again.",
+      description: `Your ${
+        preset ? "preset" : "video"
+      } was not deleted. Please try again.`,
       variant: "destructive",
     })
   }
@@ -42,10 +46,16 @@ async function deleteVideo(videoID: string) {
 }
 
 interface VideoOperationsProps {
-  video: Pick<Video, "id" | "title">
+  video: Video
+  noEdit?: boolean
+  preset?: boolean
 }
 
-export function VideoOperations({ video }: VideoOperationsProps) {
+export function VideoOperations({
+  video,
+  noEdit,
+  preset,
+}: VideoOperationsProps) {
   const router = useRouter()
   const [showDeleteAlert, setShowDeleteAlert] = React.useState<boolean>(false)
   const [isDeleteLoading, setIsDeleteLoading] = React.useState<boolean>(false)
@@ -58,12 +68,16 @@ export function VideoOperations({ video }: VideoOperationsProps) {
           <span className="sr-only">Open</span>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem>
-            <Link href={`/editor/${video.id}`} className="flex w-full">
-              Edit
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
+          {!noEdit ? (
+            <>
+              <DropdownMenuItem>
+                <Link href={`/editor/${video.id}`} className="flex w-full">
+                  Edit
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+            </>
+          ) : null}
           <DropdownMenuItem
             className="flex cursor-pointer items-center text-destructive focus:text-destructive"
             onSelect={() => setShowDeleteAlert(true)}
@@ -89,7 +103,7 @@ export function VideoOperations({ video }: VideoOperationsProps) {
                 event.preventDefault()
                 setIsDeleteLoading(true)
 
-                const deleted = await deleteVideo(video.id)
+                const deleted = await deleteVideo(video.id, preset)
 
                 if (deleted) {
                   setIsDeleteLoading(false)

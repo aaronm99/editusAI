@@ -1,10 +1,12 @@
-import { getServerSession } from "next-auth/next"
-import z from "zod"
-
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { RequiresProPlanError } from "@/lib/exceptions"
-import { VideoConfigSchema } from "@/types/schema"
+import { getServerSession } from "next-auth"
+import z from "zod"
+
+const schema = z.object({
+  configId: z.string(),
+  presetConfigId: z.string(),
+})
 
 export async function POST(req: Request) {
   try {
@@ -15,26 +17,23 @@ export async function POST(req: Request) {
     }
 
     const json = await req.json()
-    const body = VideoConfigSchema.parse(json)
+    const body = schema.parse(json)
 
-    const video = await db.videoConfig.create({
+    const result = await db.presetConfig.create({
       data: {
-        videoId: body.videoId,
+        userId: session.user.id,
         configId: body.configId,
+        presetId: body.presetConfigId,
       },
       select: {
         id: true,
       },
     })
 
-    return new Response(JSON.stringify(video))
+    return new Response(JSON.stringify(result))
   } catch (error) {
     if (error instanceof z.ZodError) {
       return new Response(JSON.stringify(error.issues), { status: 422 })
-    }
-
-    if (error instanceof RequiresProPlanError) {
-      return new Response("Requires Pro Plan", { status: 402 })
     }
 
     return new Response(error, { status: 500 })

@@ -1,12 +1,12 @@
 import Link from "next/link"
-import { Video } from "@prisma/client"
+import { Video, VideoConfig } from "@prisma/client"
 
 import { formatDate } from "@/lib/utils"
 import { Skeleton } from "@/components/ui/skeleton"
 import { VideoOperations } from "@/components/video-operations"
 
 interface VideoItemProps {
-  video: Pick<Video, "id" | "title" | "createdAt">
+  video: VideoConfig
 }
 
 export function VideoItem({ video }: VideoItemProps) {
@@ -17,15 +17,18 @@ export function VideoItem({ video }: VideoItemProps) {
           href={`/editor/${video.id}`}
           className="font-semibold hover:underline"
         >
-          {video?.title}
+          {video?.config?.title}
         </Link>
         <div>
           <p className="text-sm text-muted-foreground">
-            {formatDate(video.createdAt?.toDateString())}
+            {formatDate(video?.config?.createdAt?.toDateString())}
           </p>
         </div>
       </div>
-      <VideoOperations video={{ id: video.id, title: video.title }} />
+      <VideoOperations
+        video={{ id: video.config.id, title: video.title }}
+        noEdit
+      />
     </div>
   )
 }

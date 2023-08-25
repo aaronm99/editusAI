@@ -22,31 +22,44 @@ export default async function DashboardPage() {
     redirect(authOptions?.pages?.signIn || "/login")
   }
 
-  const video = await db.video.findMany({
+  const videoConfig = await db.videoConfig.findMany({
     where: {
-      userId: user?.id,
+      video: {
+        every: {
+          userId: user?.id,
+        },
+      },
     },
     select: {
-      id: true,
-      status: true,
+      video: true,
+      config: true,
     },
     orderBy: {
       updatedAt: "desc",
     },
   })
 
-  const draftVideos = video.filter(
-    (video) => video.status === VideoStatus.DRAFT
+  console.log(videoConfig, "videoConfig")
+
+  const draftVideos = videoConfig.filter(
+    (x) =>
+      x?.video?.find((y) => y.type === "PRIMARY")?.status === VideoStatus.DRAFT
   )
-  const processingVideos = video.filter(
-    (video) => video.status === VideoStatus.PROGRESS
+  const processingVideos = videoConfig.filter(
+    (x) =>
+      x?.video?.find((y) => y.type === "PRIMARY")?.status ===
+      VideoStatus.PROGRESS
   )
-  const reviewVideos = video.filter(
-    (video) => video.status === VideoStatus.PROGRESS
+  const reviewVideos = videoConfig.filter(
+    (x) =>
+      x?.video?.find((y) => y.type === "PRIMARY")?.status ===
+      VideoStatus.PROGRESS
   )
 
-  const completeVideos = video.filter(
-    (video) => video.status === VideoStatus.PUBLISHED
+  const completeVideos = videoConfig.filter(
+    (x) =>
+      x?.video?.find((y) => y.type === "PRIMARY")?.status ===
+      VideoStatus.PUBLISHED
   )
 
   return (

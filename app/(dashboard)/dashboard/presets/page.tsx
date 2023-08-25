@@ -26,16 +26,10 @@ export default async function PresetPage() {
     },
     select: {
       id: true,
-      title: true,
-      createdAt: true,
-      templates: {
+      name: true,
+      presetConfig: {
         select: {
-          id: true,
-          updatedAt: true,
-          createdAt: true,
           config: true,
-          bucket: true,
-          key: true,
         },
       },
     },

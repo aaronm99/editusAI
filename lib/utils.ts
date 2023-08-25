@@ -28,7 +28,13 @@ export function formatFileSize(sizeInBytes) {
   }
 }
 
-export async function uploadToS3(file: File, id?: string, type?: VIDEO_TYPE) {
+export async function uploadToS3(
+  file: File,
+  id?: string,
+  type?: VIDEO_TYPE,
+  presetConfigId?: string,
+  presetId?: string
+) {
   if (!file) return
 
   console.log("Getting S3 presigned URL...")
@@ -58,22 +64,62 @@ export async function uploadToS3(file: File, id?: string, type?: VIDEO_TYPE) {
 
   await axios.put(signedRequest, file, options)
 
-  const res = await axios.post("/api/s3-video", {
-    id,
-    type,
-    key: response.data.key,
-  })
+  if (presetId) {
+    const res = await axios.post("/api/s3-video", {
+      id: "undefined",
+      type,
+      key: response.data.key,
+      presetId,
+    })
 
-  const data = res.data
+    const data = res.data
 
-  return data
+    return data
+  }
+
+  if (presetConfigId) {
+    const res = await axios.post("/api/s3-video", {
+      id: "undefined",
+      type,
+      key: response.data.key,
+      presetConfigId,
+    })
+
+    const data = res.data
+
+    return data
+  }
+
+  if (type === VIDEO_TYPE.PRIMARY) {
+    const res = await axios.post("/api/s3-video", {
+      id,
+      type,
+      key: response.data.key,
+    })
+
+    const data = res.data
+
+    return data
+  } else if (type === VIDEO_TYPE.SECONDARY) {
+    const res = await axios.patch("/api/s3-video", {
+      id,
+      type,
+      key: response.data.key,
+    })
+
+    const data = res.data
+
+    return data
+  }
 }
 
-export const getTemplates = async () => {
-  const response = await axios.get("/api/template", {
+export const getTemplates = async (presetId: string) => {
+  const response = await fetch(`/api/template/${presetId}`, {
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
     },
   })
-  return response.data
+  const data = await response.json()
+  return data
 }

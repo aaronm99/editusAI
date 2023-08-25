@@ -3,11 +3,11 @@
 import { getTemplates } from "@/lib/utils"
 import { FontType } from "@/types/editor"
 import { FormSchema } from "@/types/schema"
-import { Casing, Template } from "@prisma/client"
+import { Casing, Config, Position, Template } from "@prisma/client"
 import { useEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import z from "zod"
-import { DataTableDemo } from "./table"
+import { DataTable } from "./table"
 import { TemplateCreateButton } from "./template-create-button"
 import { Button } from "./ui/button"
 import { Checkbox } from "./ui/checkbox"
@@ -36,7 +36,7 @@ export const TemplateSection = ({ presetId }: Props) => {
 
   useEffect(() => {
     const templates = async () => {
-      const res = await getTemplates()
+      const res = await getTemplates(presetId || "")
       setTemplates(res)
     }
     templates()
@@ -51,7 +51,7 @@ export const TemplateSection = ({ presetId }: Props) => {
 
   return (
     <>
-      <DataTableDemo templates={templates} />
+      <DataTable templates={templates} />
       <div className="mt-2 w-full">
         <TemplateCreateButton id={presetId} />
       </div>
@@ -64,7 +64,7 @@ export const Settings = ({
   id,
   close,
 }: {
-  config: typeof FormSchema
+  config: Config
   id: string
   close: () => void
 }) => {
@@ -74,7 +74,23 @@ export const Settings = ({
 
   const form = useForm<z.infer<typeof FormSchema>>({
     defaultValues: {
-      ...config,
+      title: config.title,
+      splitPosition: config.videoSplitRatio.toString(),
+      captionPosition: config.textPosition,
+      caption: {
+        font: {
+          family: config.fontName,
+          weight: config.fontWeight,
+          size: config.fontSize,
+        },
+        sentence: {
+          length: config.sentenceLength.toString(),
+          casing: config.sentenceCasing,
+          highlight: {
+            nouns: config.nouns,
+          },
+        },
+      },
     },
   })
 
@@ -84,12 +100,11 @@ export const Settings = ({
       const data = await res.json()
       setFonts(data.items)
       setSelectedFont(
-        data.items.find((font) => font.family === config.caption.font.family) ||
-          {}
+        data.items.find((font) => font.family === config.fontName) || {}
       )
     }
     fetchFonts()
-  }, [config.caption.font.family])
+  }, [config.fontName])
 
   console.log(form.formState.errors, "errors")
   const submit = async (data: z.infer<typeof FormSchema>) => {
@@ -107,6 +122,8 @@ export const Settings = ({
       if (!res.ok) {
         throw new Error("Something went wrong.")
       }
+
+      const json = await res.json()
 
       close()
       return toast({
@@ -382,7 +399,6 @@ export const Settings = ({
         <Button
           className="mt-4"
           onClick={() => {
-            form.setValue("captionPosition", "0.4")
             //   handleCallback()
             form.handleSubmit(submit)()
           }}

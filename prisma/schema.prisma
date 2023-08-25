@@ -81,6 +81,7 @@ model Config {
   textPosition    Position     @default(TOP)
   VideoConfig     VideoConfig?
   UserConfig      UserConfig?
+  PresetConfig    PresetConfig?
 
   @@map("templates")
 }
@@ -89,10 +90,23 @@ model VideoConfig {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  videoId   String
   configId  String   @unique
-  video     Video?
+  video     Video[]
   config    Config   @relation(fields: [configId], references: [id])
+}
+
+model PresetConfig {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
+  configId  String   @unique
+  presetId  String
+  config    Config   @relation(fields: [configId], references: [id])
+  preset    Preset? @relation(fields: [presetId], references: [id])
+  video     Video?
+
+  @@index([presetId])
 }
 
 model UserConfig {
@@ -106,19 +120,36 @@ model UserConfig {
 }
 
 model Video {
-  id          String      @id @default(cuid())
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  userId      String
-  bucket      String
-  key         String
-  type        VIDEO_TYPE
-  configId    String      @unique
-  status      VideoStatus @default(DRAFT)
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  videoConfig VideoConfig @relation(fields: [configId], references: [id])
+  id           String      @id @default(cuid())
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  userId       String
+  bucket       String
+  key          String
+  type         VIDEO_TYPE
+  configId     String      
+  presetConfigId     String?     @unique
+  presetId     String?
+  status       VideoStatus @default(DRAFT)
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  videoConfig  VideoConfig? @relation(fields: [configId], references: [id])
+  presetConfig PresetConfig? @relation(fields: [presetConfigId], references: [id])
+  preset       Preset?     @relation(fields: [presetId], references: [id])
 
   @@index([userId])
+  @@index([configId])
+  @@index([presetId])
+}
+
+model Preset {
+  id           String   @id @default(cuid())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  userId       String
+  name         String
+  presetConfig PresetConfig[]
+  video        Video[]
+
 }
 
 enum VIDEO_TYPE {

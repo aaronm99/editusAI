@@ -1,6 +1,6 @@
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { PresetVideoSchema } from "@/types/schema"
+import { PresetVideoConfigSchema } from "@/types/schema"
 import { getServerSession } from "next-auth"
 import z from "zod"
 
@@ -13,13 +13,17 @@ export async function POST(req: Request) {
     }
 
     const json = await req.json()
-    const body = PresetVideoSchema.parse(json)
+    const body = PresetVideoConfigSchema.parse(json).content
 
     const video = await db.video.create({
       data: {
-        title: body.content.title,
+        bucket: body.bucket,
+        key: body.key,
+        type: body.type,
+        configId: body.configId,
+        presetId: body.presetId,
+        status: body.status,
         userId: session.user.id,
-        presetId: body.content.presetId,
       },
       select: {
         id: true,

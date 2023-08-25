@@ -25,7 +25,7 @@ export async function DELETE(
     }
 
     // Delete the post.
-    await db.video.delete({
+    await db.config.delete({
       where: {
         id: params.videoId as string,
       },
@@ -37,7 +37,7 @@ export async function DELETE(
       return new Response(JSON.stringify(error.issues), { status: 422 })
     }
 
-    return new Response(null, { status: 500 })
+    return new Response(error, { status: 500 })
   }
 }
 
@@ -69,7 +69,7 @@ export async function PATCH(
       data: {
         config: body,
         title: body.title,
-        status: "processing",
+        status: "PROGRESS",
       },
       select: {
         id: true,
@@ -87,11 +87,9 @@ export async function PATCH(
 }
 
 async function verifyCurrentUserHasAccessToPost(videoId: string) {
-  const session = await getServerSession(authOptions)
-  const count = await db.video.count({
+  const count = await db.config.count({
     where: {
       id: videoId,
-      userId: session?.user.id,
     },
   })
 

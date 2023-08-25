@@ -39,7 +39,7 @@ import yellowGradient from "../public/images/yellowgradient.png"
 import ReactCompareImage from "react-compare-image"
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group"
 import { Label } from "./ui/label"
-import { Casing } from "@prisma/client"
+import { Casing, Position } from "@prisma/client"
 
 export const PageOne = ({
   file,
@@ -259,6 +259,7 @@ export const PageFour = ({
   form,
   handleCallback,
   screenPosition,
+  loading,
 }: PageFourProps) => {
   const [fonts, setFonts] = React.useState<FontType[]>([])
   const [selectedFont, setSelectedFont] = React.useState<SelectedFontProps>({
@@ -495,7 +496,7 @@ export const PageFour = ({
                       <FormItem>
                         <FormControl>
                           <RadioGroupItem
-                            value="0.1"
+                            value={Position.TOP}
                             id="top"
                             className="sr-only"
                             defaultChecked
@@ -524,7 +525,7 @@ export const PageFour = ({
                       <FormItem>
                         <FormControl>
                           <RadioGroupItem
-                            value="0.5"
+                            value={Position.CENTER}
                             id="middle"
                             className="sr-only"
                           />
@@ -552,7 +553,7 @@ export const PageFour = ({
                       <FormItem>
                         <FormControl>
                           <RadioGroupItem
-                            value="0.9"
+                            value={Position.BOTTOM}
                             id="bottom"
                             className="sr-only"
                           />
@@ -603,7 +604,6 @@ export const PageFour = ({
               color={selectedColour}
               onChange={(color) => {
                 setSelectedColour(color.hex)
-                console.log(color.hex, "xx23")
                 form.setValue("caption.sentence.highlight.colour", color.hex)
               }}
             />
@@ -611,6 +611,7 @@ export const PageFour = ({
         ) : null}
         <Button
           className="mt-4"
+          disabled={loading}
           onClick={() => {
             if (!form.getValues("caption.sentence.highlight.nouns")) {
               form.setValue("caption.sentence.highlight.colour", null)
@@ -619,9 +620,8 @@ export const PageFour = ({
             handleCallback()
           }}
         >
-          Complete
+          {loading ? "Loading..." : "Confirm"}
         </Button>
-        {/* <ImageCrop cropPercentage={0.5} imageSrc={blueGradient.src} /> */}
       </div>
     </div>
   )

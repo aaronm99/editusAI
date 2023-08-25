@@ -18,7 +18,7 @@ export async function POST(req: Request) {
 
     const video = await db.preset.create({
       data: {
-        title: body.name,
+        name: body.name,
         userId: session.user.id,
       },
       select: {
@@ -50,23 +50,20 @@ export async function GET(req: Request) {
       },
       select: {
         id: true,
-        title: true,
-        createdAt: true,
-        templates: {
+        name: true,
+        presetConfig: {
           select: {
-            id: true,
-            title: true,
             config: true,
-            bucket: true,
-            key: true,
-            createdAt: true,
           },
         },
+      },
+      orderBy: {
+        createdAt: "desc",
       },
     })
 
     return new Response(JSON.stringify(presets))
   } catch (error) {
-    return new Response(null, { status: 500 })
+    return new Response(error, { status: 500 })
   }
 }

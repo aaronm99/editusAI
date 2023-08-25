@@ -57,7 +57,7 @@ export async function POST(req: Request) {
         nouns: data.caption.sentence.highlight.nouns,
         sentenceLength: Number(data.caption.sentence.length),
         sentenceCasing: data.caption.sentence.casing,
-        textPosition: Position.CENTER,
+        textPosition: data.captionPosition,
       },
       select: {
         id: true,

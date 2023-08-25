@@ -29,7 +29,7 @@ export const Decision = ({
   const form = useForm({
     defaultValues: {
       type: "manual",
-      presetId: "",
+      presetConfigId: "",
     },
   })
   const type = form.watch("type")
@@ -38,7 +38,7 @@ export const Decision = ({
 
   function handleSelectPreset(preset: Preset) {
     setSelectedPreset(preset)
-    form.setValue("presetId", preset.id)
+    form.setValue("presetConfigId", preset.id)
   }
 
   React.useEffect(() => {
@@ -52,12 +52,12 @@ export const Decision = ({
 
   React.useEffect(() => {
     if (type === "manual") {
-      form.setValue("presetId", "")
+      form.setValue("presetConfigId", "")
       setSelectedPreset(null)
     }
   }, [type, form])
 
-  const presetLength = presets.filter((x) => x.templates.length).length
+  const presetLength = presets.filter((x) => x?.presetConfig?.length).length
 
   return (
     <>
@@ -137,7 +137,7 @@ export const Decision = ({
         <div className="flex w-full justify-end">
           <Button
             className="self-end"
-            onClick={() => handleCallback(form.getValues("presetId"))}
+            onClick={() => handleCallback(form.getValues("presetConfigId"))}
             disabled={disabled}
           >
             Next
@@ -184,7 +184,7 @@ function PresetItem({
       onClick={() => handleSelectPreset && handleSelectPreset(preset)}
     >
       <div className="grid gap-1">
-        <div className="font-semibold hover:underline">{preset.title}</div>
+        <div className="font-semibold hover:underline">{preset.name}</div>
         <div>
           {preset.createdAt ? (
             <p className="text-sm text-muted-foreground">
@@ -195,7 +195,7 @@ function PresetItem({
         <div className="text-base font-semibold underline">Templates</div>
         <TemplateSection presetId={preset.id} />
       </div>
-      <VideoOperations video={{ id: preset.id, title: preset.title }} />
+      <VideoOperations video={{ id: preset.id, title: preset.name }} />
     </div>
   )
 }

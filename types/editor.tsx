@@ -32,6 +32,7 @@ export interface PageFourProps extends PageProps {
   form: any
   handleCallback: () => void
   screenPosition: number
+  loading?: boolean
 }
 
 export type FontType = {

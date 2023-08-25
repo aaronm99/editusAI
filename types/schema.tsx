@@ -1,15 +1,18 @@
-import { Casing, VIDEO_TYPE } from "@prisma/client"
+import { Casing, Position, VideoStatus, VIDEO_TYPE } from "@prisma/client"
 import * as z from "zod"
 
 export const FormSchema = z.object({
   title: z.string().min(2, {
     message: "Title must be at least 2 characters.",
   }),
-  secondaryTitle: z.string().min(2, {
-    message: "Title must be at least 2 characters.",
-  }),
+  secondaryTitle: z
+    .string()
+    .min(2, {
+      message: "Title must be at least 2 characters.",
+    })
+    .optional(),
   splitPosition: z.string(),
-  captionPosition: z.string(),
+  captionPosition: z.nativeEnum(Position),
   caption: z.object({
     font: z.object({
       family: z.string(),
@@ -35,19 +38,19 @@ export const PresetSchema = z.object({
 
 export const TemplateSchema = z.object({
   content: FormSchema,
-  presetId: z.string(),
+  presetConfigId: z.string(),
 })
 
 export const VideoSchema = z.object({
   content: FormSchema,
-  presetId: z.undefined(),
+  presetConfigId: z.undefined(),
 })
 
 export const FormPresetSchema = z.object({
   title: z.string().min(2, {
     message: "Name must be at least 2 characters.",
   }),
-  presetId: z.string(),
+  presetConfigId: z.string(),
 })
 
 export const PresetVideoSchema = z.object({
@@ -58,9 +61,22 @@ export const S3VideoSchema = z.object({
   id: z.string().optional(),
   type: z.nativeEnum(VIDEO_TYPE).optional(),
   key: z.string().optional(),
+  presetConfigId: z.string().optional(),
+  presetId: z.string().optional(),
 })
 
 export const VideoConfigSchema = z.object({
   videoId: z.string(),
   configId: z.string(),
+})
+
+export const PresetVideoConfigSchema = z.object({
+  content: z.object({
+    bucket: z.string(),
+    key: z.string(),
+    type: z.nativeEnum(VIDEO_TYPE),
+    configId: z.string(),
+    presetId: z.string(),
+    status: z.nativeEnum(VideoStatus),
+  }),
 })

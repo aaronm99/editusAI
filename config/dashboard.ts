@@ -18,11 +18,11 @@ export const dashboardConfig: DashboardConfig = {
       href: "/dashboard",
       icon: "video",
     },
-    {
-      title: "Library",
-      href: "/dashboard/library",
-      icon: "library",
-    },
+    // {
+    //   title: "Library",
+    //   href: "/dashboard/library",
+    //   icon: "library",
+    // },
     {
       title: "Presets",
       href: "/dashboard/presets",

@@ -10,7 +10,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Template } from "@prisma/client"
 import { DialogClose } from "@radix-ui/react-dialog"
 import { format } from "date-fns"
 import { useRouter } from "next/navigation"
@@ -32,13 +31,15 @@ import {
   TableRow,
 } from "./ui/table"
 import { toast } from "./ui/use-toast"
+import { PresetConfig } from "@prisma/client"
 
-export function DataTableDemo({ templates }: { templates: Template[] }) {
+export function DataTable({ templates }: { templates: PresetConfig[] }) {
   const viewRef = React.useRef<HTMLButtonElement>(null)
   const closeRef = React.useRef<HTMLButtonElement>(null)
   const router = useRouter()
+
   const [selectedTemplate, setSelectedTemplate] =
-    React.useState<Template | null>(null)
+    React.useState<PresetConfig | null>(null)
 
   function handleClick() {
     viewRef.current?.click()
@@ -67,6 +68,11 @@ export function DataTableDemo({ templates }: { templates: Template[] }) {
     }
   }
 
+  function handleClose() {
+    closeRef.current?.click()
+    router.refresh()
+  }
+
   return (
     <div className="w-full">
       {templates.length ? (
@@ -80,43 +86,50 @@ export function DataTableDemo({ templates }: { templates: Template[] }) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {templates.map((template) => (
-                <TableRow key={template.id}>
-                  <TableCell className="font-medium">
-                    {template.title}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {format(new Date(template.createdAt), "dd/MM/yyyy")}
-                  </TableCell>
-                  <TableCell className="">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <span className="sr-only">Open menu</span>
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          className="cursor-pointer"
-                          onClick={() => {
-                            setSelectedTemplate(template)
-                            handleClick()
-                          }}
-                        >
-                          Edit Template
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          className="cursor-pointer"
-                          onClick={() => handleDelete(template.id)}
-                        >
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {templates.map((template) => {
+                const [_, name] = template?.video?.key?.split("-") || []
+
+                return (
+                  <TableRow key={template.id}>
+                    <TableCell className="font-medium">
+                      {name || "Untitled Template"}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {format(
+                        new Date(template?.config?.createdAt),
+                        "dd/MM/yyyy"
+                      )}
+                    </TableCell>
+                    <TableCell className="">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Open menu</span>
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            className="cursor-pointer"
+                            onClick={() => {
+                              setSelectedTemplate(template)
+                              handleClick()
+                            }}
+                          >
+                            Edit Template
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="cursor-pointer"
+                            onClick={() => handleDelete(template.id)}
+                          >
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
             </TableBody>
           </Table>
           <Dialog>
@@ -136,7 +149,7 @@ export function DataTableDemo({ templates }: { templates: Template[] }) {
                 <Settings
                   config={selectedTemplate?.config}
                   id={selectedTemplate?.id}
-                  //   close={handleClose}
+                  close={handleClose}
                 />
               ) : null}
             </DialogContent>

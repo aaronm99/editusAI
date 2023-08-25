@@ -7,14 +7,14 @@ import { TemplateSection } from "./preset-templates"
 import { format } from "date-fns"
 
 interface PresetItemProps {
-  preset: Pick<Preset, "id" | "updatedAt" | "createdAt" | "createdAt" | "title">
+  preset: Preset
 }
 
 export function PresetItem({ preset }: PresetItemProps) {
   return (
     <div className="flex items-center justify-between p-4">
       <div className="grid gap-1">
-        <div className="font-semibold hover:underline">{preset.title}</div>
+        <div className="font-semibold hover:underline">{preset.name}</div>
         <div>
           {preset.createdAt ? (
             <p className="text-sm text-muted-foreground">
@@ -25,7 +25,11 @@ export function PresetItem({ preset }: PresetItemProps) {
         <div className="text-base font-semibold underline">Templates</div>
         <TemplateSection presetId={preset.id} />
       </div>
-      <VideoOperations video={{ id: preset.id, title: preset.title }} />
+      <VideoOperations
+        video={{ id: preset.id, title: preset.name }}
+        noEdit
+        preset
+      />
     </div>
   )
 }

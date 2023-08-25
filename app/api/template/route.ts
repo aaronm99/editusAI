@@ -1,6 +1,7 @@
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { TemplateSchema } from "@/types/schema"
+import { Position } from "@prisma/client"
 import { getServerSession } from "next-auth"
 import z from "zod"
 
@@ -15,17 +16,17 @@ export async function POST(req: Request) {
     const json = await req.json()
     const body = TemplateSchema.parse(json)
 
-    const template = await db.template.create({
+    const template = await db.config.create({
       data: {
+        fontName: body.content.caption.font.family,
+        fontSize: body.content.caption.font.size,
+        fontWeight: body.content.caption.font.weight,
+        nouns: body.content.caption.sentence.highlight.nouns,
+        sentenceLength: Number(body.content.caption.sentence.length),
+        sentenceCasing: body.content.caption.sentence.casing,
+        textPosition: body.content.captionPosition,
+        videoSplitRatio: Number(body.content.splitPosition).toFixed(2),
         title: body.content.title,
-        bucket: "",
-        key: "",
-        config: body.content,
-        preset: {
-          connect: {
-            id: body.presetId,
-          },
-        },
       },
       select: {
         id: true,
@@ -38,36 +39,6 @@ export async function POST(req: Request) {
       return new Response(JSON.stringify(error.issues), { status: 422 })
     }
 
-    return new Response(error, { status: 500 })
-  }
-}
-
-export async function GET(req: Request) {
-  try {
-    const session = await getServerSession(authOptions)
-
-    if (!session) {
-      return new Response("Unauthorized", { status: 403 })
-    }
-
-    const templates = await db.template.findMany({
-      where: {
-        preset: {
-          userId: session.user.id,
-        },
-      },
-      select: {
-        id: true,
-        title: true,
-        config: true,
-        bucket: true,
-        key: true,
-        createdAt: true,
-      },
-    })
-
-    return new Response(JSON.stringify(templates))
-  } catch (error) {
     return new Response(error, { status: 500 })
   }
 }

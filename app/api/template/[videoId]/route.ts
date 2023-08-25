@@ -4,6 +4,7 @@ import { db } from "@/lib/db"
 import { FormSchema } from "@/types/schema"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
+import { Position } from "@prisma/client"
 
 const routeContextSchema = z.object({
   params: z.object({
@@ -32,12 +33,45 @@ export async function PATCH(
     // Update the post.
     // TODO: Implement sanitization for content.
 
-    const id = await db.template.update({
+    // const id = await db.presetConfig.update({
+    //   where: {
+    //     id: params.videoId,
+    //   },
+    //   data: {
+    //     config: {
+    //       update: {
+    //         nouns: body.caption.sentence.highlight.nouns,
+    //       },
+    //     },
+    //   },
+    //   select: {
+    //     id: true,
+    //   },
+    // })
+
+    const presetConfig = await db.presetConfig.findFirst({
       where: {
         id: params.videoId,
       },
+      select: {
+        config: true,
+      },
+    })
+    const id = presetConfig?.config?.id
+
+    const updateConfig = await db.config.update({
+      where: {
+        id: id as string,
+      },
       data: {
-        config: body,
+        nouns: body.caption.sentence.highlight.nouns,
+        fontName: body.caption.font.family,
+        fontSize: body.caption.font.size,
+        fontWeight: body.caption.font.weight,
+        sentenceLength: Number(body.caption.sentence.length),
+        sentenceCasing: body.caption.sentence.casing,
+        textPosition: body.captionPosition,
+        videoSplitRatio: Number(body.splitPosition).toFixed(2),
         title: body.title,
       },
       select: {
@@ -51,51 +85,18 @@ export async function PATCH(
       return new Response(JSON.stringify(error.issues), { status: 422 })
     }
 
-    return new Response(null, { status: 500 })
+    return new Response(error, { status: 500 })
   }
 }
 
 async function verifyCurrentUserHasAccessToPost(videoId: string) {
-  const count = await db.template.count({
+  const count = await db.presetConfig.count({
     where: {
       id: videoId,
     },
   })
 
   return count > 0
-}
-
-export async function GET(
-  req: Request,
-
-  context: z.infer<typeof routeContextSchema>
-) {
-  try {
-    const session = await getServerSession(authOptions)
-
-    if (!session) {
-      return new Response("Unauthorized", { status: 403 })
-    }
-
-    const { params } = routeContextSchema.parse(context)
-
-    const templates = await db.template.findFirst({
-      where: {
-        id: params.videoId,
-      },
-      select: {
-        id: true,
-        title: true,
-        config: true,
-        bucket: true,
-        key: true,
-      },
-    })
-
-    return new Response(JSON.stringify(templates))
-  } catch (error) {
-    return new Response(null, { status: 500 })
-  }
 }
 
 export async function DELETE(
@@ -112,7 +113,7 @@ export async function DELETE(
     }
 
     // Delete the post.
-    await db.template.delete({
+    await db.presetConfig.delete({
       where: {
         id: params.videoId as string,
       },
@@ -125,5 +126,39 @@ export async function DELETE(
     }
 
     return new Response(null, { status: 500 })
+  }
+}
+
+export async function GET(
+  req: Request,
+  context: z.infer<typeof routeContextSchema>
+) {
+  try {
+    const session = await getServerSession(authOptions)
+
+    if (!session) {
+      return new Response("Unauthorized", { status: 403 })
+    }
+
+    const { params } = routeContextSchema.parse(context)
+
+    const templates = await db.presetConfig.findMany({
+      where: {
+        preset: {
+          userId: session.user.id,
+          id: params.videoId,
+        },
+      },
+      select: {
+        id: true,
+        config: true,
+        preset: true,
+        video: true,
+      },
+    })
+
+    return new Response(JSON.stringify(templates))
+  } catch (error) {
+    return new Response(error, { status: 500 })
   }
 }

@@ -15,10 +15,10 @@ import { cn, uploadToS3 } from "@/lib/utils"
 import { postPatchSchema } from "@/lib/validations/post"
 import "@/styles/editor.css"
 import { FormPresetSchema, FormSchema } from "@/types/schema"
+import { VIDEO_TYPE } from "@prisma/client"
 import { PageFour, PageOne, PageThree, PageTwo } from "./editor-pages"
 import { Decision } from "./picker"
 import { Progress } from "./ui/progress"
-import { VIDEO_TYPE } from "@prisma/client"
 
 interface EditorProps {}
 
@@ -84,14 +84,14 @@ export function Editor({}: EditorProps) {
 
       const url = template ? "/api/template/" : "/api/videos/"
 
-      const response = await fetch(`${url}`, {
+      const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           content: data,
-          presetId: template ? params?.get("id") : undefined,
+          presetConfigId: template ? params?.get("id") : undefined,
         }),
       })
 
@@ -99,40 +99,56 @@ export function Editor({}: EditorProps) {
 
       const configId = json.id
 
-      const upload =
-        file && (await uploadToS3(file, configId, VIDEO_TYPE.PRIMARY))
+      if (!template) {
+        const upload =
+          file && (await uploadToS3(file, configId, VIDEO_TYPE.PRIMARY))
 
-      console.log(upload, "upload something")
+        const videoConfigId = upload.id
 
-      const videoId = upload.id
+        const secondaryUpload = fileTwo
+          ? await uploadToS3(fileTwo, videoConfigId, VIDEO_TYPE.SECONDARY)
+          : undefined
 
-      // const secondaryUpload =
+        setIsSaving(false)
 
-      const videoConfig = await fetch("api/video-config", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          videoId,
-          configId,
-        }),
-      })
+        if (!response?.ok) {
+          return toast({
+            title: "Something went wrong.",
+            description: "Your video was not saved. Please try again.",
+            variant: "destructive",
+          })
+        }
 
-      setIsSaving(false)
-
-      if (!response?.ok || !videoConfig?.ok) {
-        return toast({
-          title: "Something went wrong.",
-          description: "Your video was not saved. Please try again.",
-          variant: "destructive",
+        toast({
+          description: "Your video has been saved.",
         })
-      }
+        router.push("/dashboard")
+        return
+      } else {
+        const createPresetConfig = await fetch(`/api/preset-config`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            presetConfigId: params?.get("id"),
+            configId,
+          }),
+        })
 
-      toast({
-        description: "Your video has been saved.",
-      })
-      router.push("/dashboard")
+        const res = await createPresetConfig.json()
+
+        const secondaryUpload = fileTwo
+          ? await uploadToS3(fileTwo, undefined, VIDEO_TYPE.SECONDARY, res.id)
+          : undefined
+
+        setIsSaving(false)
+        toast({
+          description: "Your video has been saved.",
+        })
+        router.push("/dashboard")
+        return
+      }
     } catch (error) {
       toast({
         title: "Something went wrong.",
@@ -147,22 +163,25 @@ export function Editor({}: EditorProps) {
     try {
       setIsSaving(true)
 
-      const response = await fetch(`/api/preset-video`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          content: data,
-        }),
+      const upload =
+        file &&
+        uploadToS3(file, "", VIDEO_TYPE.PRIMARY, undefined, data.presetConfigId)
+
+      setIsSaving(false)
+      toast({
+        description: "Your video has been saved.",
       })
 
-      const json = await response.json()
-
-      // const upload = file && uploadToS3(file, json.id.id)
+      router.push("/dashboard")
+    } catch (error) {
+      toast({
+        title: "Something went wrong.",
+        description: "Your video was not saved. Please try again.",
+        variant: "destructive",
+      })
 
       router.push("/dashboard")
-    } catch (error) {}
+    }
   }
 
   function onClick() {
@@ -204,10 +223,10 @@ export function Editor({}: EditorProps) {
   // const backProps =
   //   currentStep === 1 ? { href: "/dashboard" } : { onClick: () => prevStep() }
 
-  function handleCallback(presetId: string) {
+  function handleCallback(presetConfigId: string) {
     try {
-      if (!presetId) return nextStep()
-      presetForm.setValue("presetId", presetId)
+      if (!presetConfigId) return nextStep()
+      presetForm.setValue("presetConfigId", presetConfigId)
       presetForm.setValue("title", form.getValues("title"))
       presetForm.handleSubmit(presetSubmit)()
     } catch (error) {
@@ -294,6 +313,7 @@ export function Editor({}: EditorProps) {
           nextStep={nextStep}
           prevStep={prevStep}
           form={form}
+          loading={isSaving}
           handleCallback={form.handleSubmit(onSubmit)}
         />
       ) : null}
