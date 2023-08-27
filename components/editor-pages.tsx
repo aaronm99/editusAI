@@ -40,6 +40,7 @@ import ReactCompareImage from "react-compare-image"
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group"
 import { Label } from "./ui/label"
 import { Casing, Position } from "@prisma/client"
+import { fonts } from "./fonts"
 
 export const PageOne = ({
   file,
@@ -261,24 +262,43 @@ export const PageFour = ({
   screenPosition,
   loading,
 }: PageFourProps) => {
-  const [fonts, setFonts] = React.useState<FontType[]>([])
   const [selectedFont, setSelectedFont] = React.useState<SelectedFontProps>({
     family: null,
-    variants: [],
   })
 
   const [selectedColour, setSelectedColour] = React.useState<string>("#000")
 
-  const screenSplit = screenPosition * 100
-
-  React.useEffect(() => {
-    async function fetchFonts() {
-      const res = await fetch("/api/fonts")
-      const data = await res.json()
-      setFonts(data.items)
+  const sampleText = () => {
+    let text = "this is sample text. this is sample text."
+    if (form.watch("caption.sentence.length")) {
+      const sentenceLength = form.watch("caption.sentence.length")
+      const words = text.split(" ")
+      text = words.slice(0, sentenceLength).join(" ")
     }
-    fetchFonts()
-  }, [])
+    if (form.watch("caption.sentence.casing")) {
+      const casing = form.watch("caption.sentence.casing")
+      if (casing === Casing.LOWER) {
+        text = text.toLowerCase()
+      } else if (casing === Casing.UPPER) {
+        text = text.toUpperCase()
+      } else if (casing === Casing.WORDS) {
+        text = text
+          .split(" ")
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" ")
+      } else if (casing === Casing.SENTENCES) {
+        text = text
+          .split(". ")
+          .map(
+            (sentence) => sentence.charAt(0).toUpperCase() + sentence.slice(1)
+          )
+          .join(". ")
+      }
+    }
+    return text
+  }
+
+  const screenSplit = screenPosition * 100
 
   return (
     <div className="mt-8 flex space-x-4">
@@ -329,8 +349,7 @@ export const PageFour = ({
             onValueChange={(e: FontType) => {
               setSelectedFont((s) => ({
                 ...s,
-                family: e.family,
-                variants: e.variants,
+                family: e.value.style.fontFamily,
               }))
               form.setValue("caption.font.family", e.family)
             }}
@@ -344,32 +363,10 @@ export const PageFour = ({
                 {fonts.slice(0, 10).map((font, idx) => {
                   return (
                     <SelectItem key={idx} value={font}>
-                      {font.family}
+                      {font.name}
                     </SelectItem>
                   )
                 })}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-
-          <Select
-            onValueChange={(e) => form.setValue("caption.font.weight", e)}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select a Font Variant" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectLabel>Font Variants</SelectLabel>
-                {selectedFont &&
-                  selectedFont.variants &&
-                  selectedFont.variants.map((variant, variantIdx) => {
-                    return (
-                      <SelectItem key={variantIdx} value={variant}>
-                        {variant}
-                      </SelectItem>
-                    )
-                  })}
               </SelectGroup>
             </SelectContent>
           </Select>
@@ -464,16 +461,14 @@ export const PageFour = ({
             </form>
           </Form>
         </div>
-        {/* TODO: Fix this */}
-        {/* <p
+        <p
           style={{
             fontFamily: selectedFont.family || undefined,
-            fontWeight:
-              form.watch("caption.font.weight") || selectedFont.variants[0],
+            fontSize: form.watch("caption.font.size") || 14,
           }}
         >
-          This is sample text.
-        </p> */}
+          {sampleText()}
+        </p>
 
         <h2 className="text-xl font-semibold">Positioning</h2>
 

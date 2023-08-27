@@ -7,6 +7,7 @@ import { Casing, Config, Position, Template } from "@prisma/client"
 import { useEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import z from "zod"
+import { fonts } from "./fonts"
 import { DataTable } from "./table"
 import { TemplateCreateButton } from "./template-create-button"
 import { Button } from "./ui/button"
@@ -69,7 +70,6 @@ export const Settings = ({
   close: () => void
 }) => {
   // video on left
-  const [fonts, setFonts] = useState<FontType[]>([])
   const [selectedFont, setSelectedFont] = useState({})
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -95,15 +95,7 @@ export const Settings = ({
   })
 
   useEffect(() => {
-    async function fetchFonts() {
-      const res = await fetch("/api/fonts")
-      const data = await res.json()
-      setFonts(data.items)
-      setSelectedFont(
-        data.items.find((font) => font.family === config.fontName) || {}
-      )
-    }
-    fetchFonts()
+    setSelectedFont(fonts.find((font) => font.name === config.fontName) || {})
   }, [config.fontName])
 
   console.log(form.formState.errors, "errors")
@@ -158,7 +150,7 @@ export const Settings = ({
                     onValueChange={(e) => {
                       field.onChange(e)
                       setSelectedFont(
-                        fonts.find((font) => font.family === field.value) || {}
+                        fonts.find((font) => font.name === field.value) || {}
                       )
                     }}
                     defaultValue={field.value}
@@ -171,42 +163,11 @@ export const Settings = ({
                         <SelectLabel>Fonts</SelectLabel>
                         {fonts.slice(0, 10).map((font, idx) => {
                           return (
-                            <SelectItem key={idx} value={font.family}>
-                              {font.family}
+                            <SelectItem key={idx} value={font.name}>
+                              {font.name}
                             </SelectItem>
                           )
                         })}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="caption.font.weight"
-              render={({ field }) => (
-                <FormItem>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Select a Font Variant" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Font Variants</SelectLabel>
-                        {selectedFont &&
-                          selectedFont.variants &&
-                          selectedFont.variants.map((variant, variantIdx) => {
-                            return (
-                              <SelectItem key={variantIdx} value={variant}>
-                                {variant}
-                              </SelectItem>
-                            )
-                          })}
                       </SelectGroup>
                     </SelectContent>
                   </Select>
