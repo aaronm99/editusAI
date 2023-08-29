@@ -62,7 +62,6 @@ export default function VideoEditor({ video }) {
 
   // Define other handlers and logic as needed
 
-  console.log(video.s3VideoSignedUrl, "xx23")
   return (
     <div>
       {/* Main content here */}

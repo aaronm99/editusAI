@@ -1,9 +1,8 @@
-import { getServerSession } from "next-auth/next"
 import { z } from "zod"
 
-import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { userNameSchema } from "@/lib/validations/user"
+import { withSSRContext } from "aws-amplify"
 
 const routeContextSchema = z.object({
   params: z.object({
@@ -19,9 +18,12 @@ export async function PATCH(
     // Validate the route context.
     const { params } = routeContextSchema.parse(context)
 
+    const { Auth } = withSSRContext({ req })
+    const user = await Auth.currentAuthenticatedUser()
+
     // Ensure user is authentication and has access to this user.
-    const session = await getServerSession(authOptions)
-    if (!session?.user || params.userId !== session?.user.id) {
+
+    if (!user || params.userId !== user.username) {
       return new Response(null, { status: 403 })
     }
 
@@ -32,7 +34,7 @@ export async function PATCH(
     // Update the user.
     await db.user.update({
       where: {
-        id: session.user.id,
+        id: user.username,
       },
       data: {
         name: payload.name,

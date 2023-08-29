@@ -1,9 +1,8 @@
-import { getServerSession } from "next-auth/next"
-
-import { authOptions } from "@/lib/auth"
+import { getWithSSRContext } from "@/app/(auth)/ssr"
 
 export async function getCurrentUser() {
-  const session = await getServerSession(authOptions)
+  const { Auth } = getWithSSRContext()
+  const user = await Auth.currentAuthenticatedUser()
 
-  return session?.user
+  return user
 }

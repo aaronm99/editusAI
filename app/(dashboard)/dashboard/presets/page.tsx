@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation"
 
-import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { getCurrentUser } from "@/lib/session"
 import { EmptyPlaceholder } from "@/components/empty-placeholder"
@@ -17,12 +16,12 @@ export default async function PresetPage() {
   const user = await getCurrentUser()
 
   if (!user) {
-    redirect(authOptions?.pages?.signIn || "/login")
+    redirect("/login")
   }
 
   const presets = await db.preset.findMany({
     where: {
-      userId: user?.id,
+      userId: user.username,
     },
     select: {
       id: true,

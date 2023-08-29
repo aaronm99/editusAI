@@ -36,3 +36,51 @@ export const env = createEnv({
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
   },
 })
+
+// import { createEnv } from "@t3-oss/env-nextjs"
+// import { z } from "zod"
+
+// export const env = createEnv({
+//   server: {
+//     // This is optional because it's only used in development.
+//     // See https://next-auth.js.org/deployment.
+//     DATABASE_URL: z.string().min(1),
+//     SMTP_FROM: z.string().min(1),
+//     POSTMARK_API_TOKEN: z.string().min(1),
+//     POSTMARK_SIGN_IN_TEMPLATE: z.string().min(1),
+//     POSTMARK_ACTIVATION_TEMPLATE: z.string().min(1),
+//     STRIPE_API_KEY: z.string().min(1),
+//     STRIPE_WEBHOOK_SECRET: z.string().min(1),
+//     STRIPE_PRO_MONTHLY_PLAN_ID: z.string().min(1),
+//     NEXT_PUBLIC_USER_POOL: process.env.NEXT_PUBLIC_USER_POOL,
+//     NEXT_PUBLIC_CLIENT_ID: process.env.NEXT_PUBLIC_CLIENT_ID,
+//     NEXT_PUBLIC_COGNITO_ID_POOL: process.env.NEXT_PUBLIC_COGNITO_ID_POOL,
+//     NEXT_PUBLIC_AWS_REGION: process.env.NEXT_PUBLIC_AWS_REGION,
+//     AWS_REGION: process.env.AWS_REGION,
+//     AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
+//     AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
+//     NEXT_PUBLIC_AWS_S3_BUCKET_NAME: process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME,
+//   },
+//   client: {
+//     NEXT_PUBLIC_APP_URL: z.string().min(1),
+//   },
+//   runtimeEnv: {
+//     DATABASE_URL: process.env.DATABASE_URL,
+//     SMTP_FROM: process.env.SMTP_FROM,
+//     POSTMARK_API_TOKEN: process.env.POSTMARK_API_TOKEN,
+//     POSTMARK_SIGN_IN_TEMPLATE: process.env.POSTMARK_SIGN_IN_TEMPLATE,
+//     POSTMARK_ACTIVATION_TEMPLATE: process.env.POSTMARK_ACTIVATION_TEMPLATE,
+//     STRIPE_API_KEY: process.env.STRIPE_API_KEY,
+//     STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
+//     STRIPE_PRO_MONTHLY_PLAN_ID: process.env.STRIPE_PRO_MONTHLY_PLAN_ID,
+//     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+//     NEXT_PUBLIC_USER_POOL: process.env.NEXT_PUBLIC_USER_POOL,
+//     NEXT_PUBLIC_CLIENT_ID: process.env.NEXT_PUBLIC_CLIENT_ID,
+//     NEXT_PUBLIC_COGNITO_ID_POOL: process.env.NEXT_PUBLIC_COGNITO_ID_POOL,
+//     NEXT_PUBLIC_AWS_REGION: process.env.NEXT_PUBLIC_AWS_REGION,
+//     AWS_REGION: process.env.AWS_REGION,
+//     AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
+//     AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
+//     NEXT_PUBLIC_AWS_S3_BUCKET_NAME: process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME,
+//   },
+// })

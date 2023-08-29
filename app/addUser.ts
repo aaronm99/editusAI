@@ -1,27 +1,24 @@
 "use server"
 
-import { db } from "@/lib/db"
 import { IUserAuth } from "@/lib/validations/auth"
-import { hash } from "argon2"
+import { Auth } from "aws-amplify"
 
 export async function addUser(data: IUserAuth) {
   const { email, password } = data
 
   try {
-    const exists = await db.user.findFirst({
-      where: { email },
+    const result = await Auth.signUp({
+      username: email,
+      password,
+      attributes: {
+        email: email,
+        "custom:owner": "1",
+        "custom:manager": "1",
+        "custom:employee": "1",
+        // given_name: name,
+        // family_name: surname,
+      },
     })
-
-    if (exists) {
-      return `User already exists with email ${email}`
-    }
-
-    const hashedPassword = await hash(password)
-
-    const result = await db.user.create({
-      data: { email, password: hashedPassword },
-    })
-
     return { result }
   } catch (err) {
     return "Error creating user"

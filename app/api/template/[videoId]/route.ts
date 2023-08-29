@@ -2,9 +2,8 @@ import * as z from "zod"
 
 import { db } from "@/lib/db"
 import { FormSchema } from "@/types/schema"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
 import { Position } from "@prisma/client"
+import { getWithSSRContext } from "@/app/(auth)/ssr"
 
 const routeContextSchema = z.object({
   params: z.object({
@@ -134,7 +133,10 @@ export async function GET(
   context: z.infer<typeof routeContextSchema>
 ) {
   try {
-    const session = await getServerSession(authOptions)
+    const { Auth } = getWithSSRContext()
+
+    const currentUser = await Auth.currentAuthenticatedUser()
+    const session = await Auth.currentSession()
 
     if (!session) {
       return new Response("Unauthorized", { status: 403 })
@@ -145,7 +147,7 @@ export async function GET(
     const templates = await db.presetConfig.findMany({
       where: {
         preset: {
-          userId: session.user.id,
+          userId: currentUser.username,
           id: params.videoId,
         },
       },

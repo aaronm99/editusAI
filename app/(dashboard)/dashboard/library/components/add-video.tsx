@@ -19,6 +19,7 @@ import { useForm } from "react-hook-form"
 import { DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { DialogClose } from "@radix-ui/react-dialog"
+import { toast } from "@/components/ui/use-toast"
 
 export const UploadVideo = () => {
   const [file, setFile] = useState<File | null>(null)
@@ -32,8 +33,24 @@ export const UploadVideo = () => {
     e: React.ChangeEvent<HTMLInputElement> | React.DragEvent<HTMLDivElement>
   ) => {
     if (e.target instanceof HTMLInputElement && e.target.files) {
-      setFile(e.target.files[0])
+      const selectedFile = e.target.files[0]
+      if (selectedFile.type !== "video/mp4") {
+        return toast({
+          title: "Wrong File Type.",
+          description: "Please upload an MP4 File.",
+          variant: "destructive",
+        })
+      }
+      setFile(selectedFile)
     } else if ("dataTransfer" in e && e.dataTransfer && e.dataTransfer.files) {
+      const selectedFile = e.dataTransfer.files[0]
+      if (selectedFile.type !== "video/mp4") {
+        return toast({
+          title: "Wrong File Type.",
+          description: "Please upload an MP4 File.",
+          variant: "destructive",
+        })
+      }
       setFile(e.dataTransfer.files[0])
     }
   }

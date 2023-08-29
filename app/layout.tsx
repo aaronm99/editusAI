@@ -8,6 +8,9 @@ import { Toaster } from "@/components/ui/toaster"
 import { Analytics } from "@/components/analytics"
 import { TailwindIndicator } from "@/components/tailwind-indicator"
 import { ThemeProvider } from "@/components/theme-provider"
+import "./(auth)/configure"
+import { Amplify } from "aws-amplify"
+import { config } from "./(auth)/config"
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -70,6 +73,8 @@ export const metadata = {
   },
   manifest: `${siteConfig.url}/site.webmanifest`,
 }
+
+Amplify.configure(config)
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (

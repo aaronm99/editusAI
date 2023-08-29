@@ -36,12 +36,20 @@ export async function uploadToS3(
   presetId?: string
 ) {
   if (!file) return
-
+  let createVideoConfig
   console.log("Getting S3 presigned URL...")
+
+  if (type === VIDEO_TYPE.PRIMARY) {
+    createVideoConfig = await axios.post("/api/video-config", {
+      id,
+    })
+  }
+
   const response = await axios.post("/api/s3-presigned-url", {
     fileName: file.name,
     fileType: file.type,
-    id,
+    id: createVideoConfig?.data?.videoConfig?.id || id,
+    type,
   })
 
   console.log("response: ", response)
@@ -92,14 +100,12 @@ export async function uploadToS3(
 
   if (type === VIDEO_TYPE.PRIMARY) {
     const res = await axios.post("/api/s3-video", {
-      id,
+      id: createVideoConfig.data.videoConfig.id || id,
       type,
       key: response.data.key,
     })
 
-    const data = res.data
-
-    return data
+    return { id: createVideoConfig.data.videoConfig.id }
   } else if (type === VIDEO_TYPE.SECONDARY) {
     const res = await axios.patch("/api/s3-video", {
       id,
@@ -111,6 +117,7 @@ export async function uploadToS3(
 
     return data
   }
+  return { id: createVideoConfig.data.videoConfig.id || id }
 }
 
 export const getTemplates = async (presetId: string) => {

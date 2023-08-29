@@ -1,21 +1,11 @@
 import { redirect } from "next/navigation"
 
-import { authOptions } from "@/lib/auth"
+import { BillingForm } from "@/components/billing-form"
+import { DashboardHeader } from "@/components/header"
+import { DashboardShell } from "@/components/shell"
 import { getCurrentUser } from "@/lib/session"
 import { stripe } from "@/lib/stripe"
 import { getUserSubscriptionPlan } from "@/lib/subscription"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { BillingForm } from "@/components/billing-form"
-import { DashboardHeader } from "@/components/header"
-import { Icons } from "@/components/icons"
-import { DashboardShell } from "@/components/shell"
 
 export const metadata = {
   title: "Billing",
@@ -26,10 +16,10 @@ export default async function BillingPage() {
   const user = await getCurrentUser()
 
   if (!user) {
-    redirect(authOptions?.pages?.signIn || "/login")
+    redirect("/login")
   }
 
-  const subscriptionPlan = await getUserSubscriptionPlan(user.id)
+  const subscriptionPlan = await getUserSubscriptionPlan(user.username)
 
   // If user has a pro plan, check cancel status on Stripe.
   let isCanceled = false

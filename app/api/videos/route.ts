@@ -1,16 +1,16 @@
-import { getServerSession } from "next-auth/next"
 import z from "zod"
 
-import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { RequiresProPlanError } from "@/lib/exceptions"
-import { getUserSubscriptionPlan } from "@/lib/subscription"
-import { FormSchema, VideoSchema } from "@/types/schema"
-import { Position } from "@prisma/client"
 
-export async function GET() {
+import { VideoSchema } from "@/types/schema"
+import { getWithSSRContext } from "@/app/(auth)/ssr"
+
+export async function GET(req: Request) {
   try {
-    const session = await getServerSession(authOptions)
+    const { Auth } = getWithSSRContext()
+
+    const session = await Auth.currentAuthenticatedUser()
 
     if (!session) {
       return new Response("Unauthorized", { status: 403 })
@@ -24,7 +24,7 @@ export async function GET() {
         createdAt: true,
       },
       where: {
-        userId: user.id,
+        userId: user.username,
       },
     })
 
@@ -36,7 +36,9 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions)
+    const { Auth } = getWithSSRContext()
+
+    const session = await Auth.currentAuthenticatedUser()
 
     if (!session) {
       return new Response("Unauthorized", { status: 403 })
@@ -53,7 +55,6 @@ export async function POST(req: Request) {
         videoSplitRatio: Number(data.splitPosition).toFixed(2),
         fontName: data.caption.font.family,
         fontSize: data.caption.font.size,
-        fontWeight: data.caption.font.weight,
         nouns: data.caption.sentence.highlight.nouns,
         sentenceLength: Number(data.caption.sentence.length),
         sentenceCasing: data.caption.sentence.casing,

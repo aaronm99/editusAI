@@ -11,6 +11,7 @@ export interface PageOneProps extends PageProps {
   handleDragLeave: (e: React.DragEvent<HTMLDivElement>) => void
   handleDrop: (e: React.DragEvent<HTMLDivElement>) => void
   onClick: () => void
+  clearFile: () => void
 }
 
 export interface PageTwoProps extends PageProps {
@@ -21,6 +22,7 @@ export interface PageTwoProps extends PageProps {
   handleDragLeave: (e: React.DragEvent<HTMLDivElement>) => void
   handleDrop: (e: React.DragEvent<HTMLDivElement>) => void
   onClick: () => void
+  clearFile: () => void
 }
 
 export interface PageThreeProps extends PageProps {

@@ -1,11 +1,9 @@
-import { notFound } from "next/navigation"
-
-import { dashboardConfig } from "@/config/dashboard"
-import { getCurrentUser } from "@/lib/session"
 import { MainNav } from "@/components/main-nav"
 import { DashboardNav } from "@/components/nav"
 import { SiteFooter } from "@/components/site-footer"
 import { UserAccountNav } from "@/components/user-account-nav"
+import { dashboardConfig } from "@/config/dashboard"
+import { getCurrentUser } from "@/lib/session"
 
 interface DashboardLayoutProps {
   children?: React.ReactNode
@@ -14,10 +12,11 @@ interface DashboardLayoutProps {
 export default async function DashboardLayout({
   children,
 }: DashboardLayoutProps) {
-  const user = await getCurrentUser()
-
-  if (!user) {
-    return notFound()
+  const userData = await getCurrentUser()
+  const user = {
+    name: "John Doe",
+    image: "https://avatars.githubusercontent.com/u/10660476?v=4",
+    email: "hsowjdwjdow",
   }
 
   return (

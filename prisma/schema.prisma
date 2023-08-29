@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider     = "mysql"
+  provider     = "postgresql"
   url          = env("DATABASE_URL")
   relationMode = "prisma"
 }
@@ -25,7 +25,6 @@ model Account {
   updatedAt         DateTime @default(now()) @map("updated_at")
 
   @@unique([provider, providerAccountId])
-  @@map("accounts")
 }
 
 model Session {
@@ -34,7 +33,6 @@ model Session {
   userId       String
   expires      DateTime
 
-  @@map("sessions")
 }
 
 model User {
@@ -54,7 +52,6 @@ model User {
   userConfig             UserConfig @relation(fields: [userConfigId], references: [id])
   Videos                 Video[]
 
-  @@map("users")
 }
 
 model VerificationToken {
@@ -63,7 +60,6 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
-  @@map("verification_tokens")
 }
 
 model Config {
@@ -74,16 +70,15 @@ model Config {
   videoSplitRatio Decimal
   fontName        String
   fontSize        Int
-  fontWeight      String
   nouns           Boolean      @default(true)
   sentenceLength  Int
+  textAlignment      TextAligment @default(LEFT)
   sentenceCasing  Casing       @default(WORDS)
   textPosition    Position     @default(TOP)
   VideoConfig     VideoConfig?
   UserConfig      UserConfig?
   PresetConfig    PresetConfig?
 
-  @@map("templates")
 }
 
 model VideoConfig {
@@ -120,21 +115,21 @@ model UserConfig {
 }
 
 model Video {
-  id           String      @id @default(cuid())
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  userId       String
-  bucket       String
-  key          String
-  type         VIDEO_TYPE
-  configId     String      
-  presetConfigId     String?     @unique
-  presetId     String?
-  status       VideoStatus @default(DRAFT)
-  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  videoConfig  VideoConfig? @relation(fields: [configId], references: [id])
-  presetConfig PresetConfig? @relation(fields: [presetConfigId], references: [id])
-  preset       Preset?     @relation(fields: [presetId], references: [id])
+  id             String      @id @default(cuid())
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  userId         String
+  bucket         String
+  key            String
+  type           VIDEO_TYPE
+  configId       String      
+  presetConfigId String?     @unique
+  presetId       String?
+  status         VideoStatus @default(DRAFT)
+  user           User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  videoConfig    VideoConfig? @relation(fields: [configId], references: [id])
+  presetConfig   PresetConfig? @relation(fields: [presetConfigId], references: [id])
+  preset         Preset?     @relation(fields: [presetId], references: [id])
 
   @@index([userId])
   @@index([configId])
@@ -161,6 +156,7 @@ enum Position {
   TOP
   CENTER
   BOTTOM
+  SPLIT
 }
 
 enum VideoStatus {
@@ -175,4 +171,10 @@ enum Casing {
   UPPER
   SENTENCES
   WORDS
+}
+
+enum TextAligment {
+LEFT
+CENTER
+RIGHT
 }

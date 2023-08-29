@@ -1,14 +1,17 @@
-import { getServerSession } from "next-auth/next"
 import z from "zod"
 
-import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { RequiresProPlanError } from "@/lib/exceptions"
 import { S3VideoSchema } from "@/types/schema"
+import { getWithSSRContext } from "@/app/(auth)/ssr"
 
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions)
+    const { Auth } = getWithSSRContext()
+
+    const currentUser = await Auth.currentAuthenticatedUser()
+    console.log(currentUser, "xx23 current user")
+    const session = await Auth.currentSession()
 
     if (!session) {
       return new Response("Unauthorized", { status: 403 })
@@ -25,11 +28,11 @@ export async function POST(req: Request) {
 
     const video = await db.video.create({
       data: {
-        userId: session.user.id,
-        bucket: session.user.id,
+        userId: currentUser.username,
+        bucket: currentUser.username,
         key: body.key,
         type: body.type,
-        configId: "",
+        configId: body.id,
       },
       select: {
         id: true,
@@ -67,25 +70,8 @@ export async function POST(req: Request) {
 
       return new Response(JSON.stringify(updatedVideo))
     }
-    const videoConfig = await db.videoConfig.create({
-      data: {
-        configId: body.id,
-      },
-    })
 
-    const updatedVideo = await db.video.update({
-      where: {
-        id: video.id,
-      },
-      data: {
-        configId: videoConfig.id,
-      },
-      select: {
-        configId: true,
-      },
-    })
-
-    return new Response(JSON.stringify(videoConfig))
+    return new Response(JSON.stringify({ video }))
   } catch (error) {
     if (error instanceof z.ZodError) {
       return new Response(JSON.stringify(error.issues), { status: 422 })
@@ -101,7 +87,10 @@ export async function POST(req: Request) {
 
 export async function PATCH(req: Request) {
   try {
-    const session = await getServerSession(authOptions)
+    const { Auth } = getWithSSRContext()
+
+    const currentUser = await Auth.currentAuthenticatedUser()
+    const session = await Auth.currentSession()
 
     if (!session) {
       return new Response("Unauthorized", { status: 403 })
@@ -116,8 +105,8 @@ export async function PATCH(req: Request) {
 
     const video = await db.video.create({
       data: {
-        userId: session.user.id,
-        bucket: session.user.id,
+        userId: currentUser.username,
+        bucket: currentUser.username,
         key: body.key,
         type: body.type,
         configId: body.id,

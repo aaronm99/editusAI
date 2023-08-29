@@ -1,13 +1,15 @@
-import { authOptions } from "@/lib/auth"
+import { getWithSSRContext } from "@/app/(auth)/ssr"
 import { db } from "@/lib/db"
 import { PresetSchema } from "@/types/schema"
-import { getServerSession } from "next-auth"
 
 import * as z from "zod"
 
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions)
+    const { Auth } = getWithSSRContext()
+
+    const currentUser = await Auth.currentAuthenticatedUser()
+    const session = await Auth.currentSession()
 
     if (!session) {
       return new Response("Unauthorized", { status: 403 })
@@ -19,7 +21,7 @@ export async function POST(req: Request) {
     const video = await db.preset.create({
       data: {
         name: body.name,
-        userId: session.user.id,
+        userId: currentUser.username,
       },
       select: {
         id: true,
@@ -38,7 +40,10 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
   try {
-    const session = await getServerSession(authOptions)
+    const { Auth } = getWithSSRContext()
+
+    const currentUser = await Auth.currentAuthenticatedUser()
+    const session = await Auth.currentSession()
 
     if (!session) {
       return new Response("Unauthorized", { status: 403 })
@@ -46,7 +51,7 @@ export async function GET(req: Request) {
 
     const presets = await db.preset.findMany({
       where: {
-        userId: session.user.id,
+        userId: currentUser.username,
       },
       select: {
         id: true,

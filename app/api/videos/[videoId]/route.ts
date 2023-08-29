@@ -1,8 +1,7 @@
-import { getServerSession } from "next-auth"
 import * as z from "zod"
 
-import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
+
 import { FormSchema } from "@/types/schema"
 
 const routeContextSchema = z.object({
@@ -20,7 +19,7 @@ export async function DELETE(
     const { params } = routeContextSchema.parse(context)
 
     // Check if the user has access to this post.
-    if (!(await verifyCurrentUserHasAccessToPost(params.videoId))) {
+    if (!(await verifyCurrentUserHasAccessToPost(req, params.videoId))) {
       return new Response(null, { status: 403 })
     }
 
@@ -51,7 +50,7 @@ export async function PATCH(
     const { params } = routeContextSchema.parse(context)
 
     // Check if the user has access to this post.
-    if (!(await verifyCurrentUserHasAccessToPost(params.videoId))) {
+    if (!(await verifyCurrentUserHasAccessToPost(req, params.videoId))) {
       return new Response(null, { status: 403 })
     }
 
@@ -86,8 +85,8 @@ export async function PATCH(
   }
 }
 
-async function verifyCurrentUserHasAccessToPost(videoId: string) {
-  const count = await db.config.count({
+async function verifyCurrentUserHasAccessToPost(req: Request, videoId: string) {
+  const count = await db.video.count({
     where: {
       id: videoId,
     },

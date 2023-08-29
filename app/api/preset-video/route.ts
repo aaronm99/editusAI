@@ -1,12 +1,14 @@
-import { authOptions } from "@/lib/auth"
+import { getWithSSRContext } from "@/app/(auth)/ssr"
 import { db } from "@/lib/db"
 import { PresetVideoConfigSchema } from "@/types/schema"
-import { getServerSession } from "next-auth"
 import z from "zod"
 
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions)
+    const { Auth } = getWithSSRContext()
+
+    const currentUser = await Auth.currentAuthenticatedUser()
+    const session = await Auth.currentSession()
 
     if (!session) {
       return new Response("Unauthorized", { status: 403 })
@@ -23,7 +25,7 @@ export async function POST(req: Request) {
         configId: body.configId,
         presetId: body.presetId,
         status: body.status,
-        userId: session.user.id,
+        userId: currentUser.username,
       },
       select: {
         id: true,

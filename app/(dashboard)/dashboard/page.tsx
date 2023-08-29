@@ -1,32 +1,29 @@
-import { redirect } from "next/navigation"
-
-import { authOptions } from "@/lib/auth"
-import { db } from "@/lib/db"
-import { getCurrentUser } from "@/lib/session"
+import { getWithSSRContext } from "@/app/(auth)/ssr"
 import { EmptyPlaceholder } from "@/components/empty-placeholder"
 import { DashboardHeader } from "@/components/header"
+
 import { VideoCreateButton } from "@/components/video-create-button"
 import { VideoItem } from "@/components/video-item"
 import { DashboardShell } from "@/components/shell"
 import { ProcessingVideo } from "@/components/process-video"
 import { VideoStatus } from "@prisma/client"
+import { db } from "@/lib/db"
 
 export const metadata = {
   title: "Dashboard",
 }
 
-export default async function DashboardPage() {
-  const user = await getCurrentUser()
+export default async function DashboardPage(props) {
+  console.log("props", props)
+  const { Auth } = getWithSSRContext()
 
-  if (!user) {
-    redirect(authOptions?.pages?.signIn || "/login")
-  }
+  const currentUser = await Auth.currentAuthenticatedUser()
 
   const videoConfig = await db.videoConfig.findMany({
     where: {
       video: {
         every: {
-          userId: user?.id,
+          userId: currentUser?.id,
         },
       },
     },

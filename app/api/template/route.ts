@@ -1,13 +1,15 @@
-import { authOptions } from "@/lib/auth"
+import { getWithSSRContext } from "@/app/(auth)/ssr"
 import { db } from "@/lib/db"
 import { TemplateSchema } from "@/types/schema"
 import { Position } from "@prisma/client"
-import { getServerSession } from "next-auth"
 import z from "zod"
 
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions)
+    const { Auth } = getWithSSRContext()
+
+    const currentUser = await Auth.currentAuthenticatedUser()
+    const session = await Auth.currentSession()
 
     if (!session) {
       return new Response("Unauthorized", { status: 403 })
@@ -20,7 +22,6 @@ export async function POST(req: Request) {
       data: {
         fontName: body.content.caption.font.family,
         fontSize: body.content.caption.font.size,
-        fontWeight: body.content.caption.font.weight,
         nouns: body.content.caption.sentence.highlight.nouns,
         sentenceLength: Number(body.content.caption.sentence.length),
         sentenceCasing: body.content.caption.sentence.casing,

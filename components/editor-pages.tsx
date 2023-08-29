@@ -41,6 +41,7 @@ import { RadioGroup, RadioGroupItem } from "./ui/radio-group"
 import { Label } from "./ui/label"
 import { Casing, Position } from "@prisma/client"
 import { fonts } from "./fonts"
+import { X } from "lucide-react"
 
 export const PageOne = ({
   file,
@@ -51,6 +52,7 @@ export const PageOne = ({
   handleDrop,
   onClick,
   nextStep,
+  clearFile,
 }: PageOneProps) => {
   React.useEffect(() => {
     form.setValue("title", file?.name)
@@ -61,7 +63,13 @@ export const PageOne = ({
       {file ? (
         <div className="ml-6 mt-8">
           <div className="flex flex-row space-x-12">
-            <div className="w-1/2">
+            <div className="relative w-1/2">
+              <div
+                className="absolute -right-2 -top-2 z-10 cursor-pointer rounded-full bg-red-500 p-0.5"
+                onClick={clearFile}
+              >
+                <X size={20} />
+              </div>
               <video
                 className="rounded-lg"
                 src={file ? URL.createObjectURL(file) : ""}
@@ -133,6 +141,7 @@ export const PageTwo = ({
   handleDrop,
   onClick,
   nextStep,
+  clearFile,
 }: PageTwoProps) => {
   React.useEffect(() => {
     form.setValue("secondaryTitle", file?.name)
@@ -144,6 +153,12 @@ export const PageTwo = ({
         <div className="ml-6 mt-8">
           <div className="flex flex-row space-x-12">
             <div className="w-1/2">
+              <div
+                className="absolute -right-2 -top-2 z-10 cursor-pointer rounded-full bg-red-500 p-0.5"
+                onClick={clearFile}
+              >
+                <X size={20} />
+              </div>
               <video
                 className="rounded-lg"
                 src={file ? URL.createObjectURL(file) : ""}
@@ -351,7 +366,7 @@ export const PageFour = ({
                 ...s,
                 family: e.value.style.fontFamily,
               }))
-              form.setValue("caption.font.family", e.family)
+              form.setValue("caption.font.family", e.name)
             }}
           >
             <SelectTrigger className="w-[180px]">
@@ -360,7 +375,7 @@ export const PageFour = ({
             <SelectContent>
               <SelectGroup>
                 <SelectLabel>Fonts</SelectLabel>
-                {fonts.slice(0, 10).map((font, idx) => {
+                {fonts.map((font, idx) => {
                   return (
                     <SelectItem key={idx} value={font}>
                       {font.name}
@@ -482,7 +497,7 @@ export const PageFour = ({
                   <RadioGroup
                     onValueChange={field.onChange}
                     defaultValue={field.value}
-                    className="mx-auto mt-2 grid grid-cols-3 gap-4"
+                    className="mx-auto mt-2 grid grid-cols-4 gap-4"
                   >
                     <Label
                       htmlFor="top"
@@ -568,6 +583,34 @@ export const PageFour = ({
                         <path d="M2 10h20" />
                       </svg>
                       Bottom
+                    </Label>
+                    <Label
+                      htmlFor="split"
+                      className="flex cursor-pointer flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary"
+                    >
+                      <FormItem>
+                        <FormControl>
+                          <RadioGroupItem
+                            value={Position.SPLIT}
+                            id="split"
+                            className="sr-only"
+                          />
+                        </FormControl>
+                      </FormItem>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        className="mb-3 h-6 w-6"
+                      >
+                        <rect width="20" height="14" x="2" y="5" rx="2" />
+                        <path d="M2 10h20" />
+                      </svg>
+                      Split
                     </Label>
                   </RadioGroup>
                 </FormControl>

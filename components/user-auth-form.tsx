@@ -1,9 +1,8 @@
 "use client"
 
 import * as React from "react"
-import { useSearchParams, usePathname } from "next/navigation"
+import { useSearchParams, usePathname, useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { signIn } from "next-auth/react"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 
@@ -15,6 +14,7 @@ import { Label } from "@/components/ui/label"
 import { toast } from "@/components/ui/use-toast"
 import { Icons } from "@/components/icons"
 import { addUser } from "@/app/addUser"
+import { Auth } from "aws-amplify"
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
@@ -34,6 +34,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   const searchParams = useSearchParams()
   const pathname = usePathname()
   const isLogin = pathname === "/login"
+  const router = useRouter()
 
   async function onSubmit(data: FormData) {
     if (pathname === "/login") {
@@ -43,42 +44,41 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
     return registerUser(data)
   }
 
-  async function loginUser(data: FormData) {
+  async function loginUser({ email, password }: FormData) {
     setIsLoading(true)
+    try {
+      const user = await Auth.signIn(email, password)
+      console.log(user)
 
-    const signInResult = await signIn("credentials", {
-      ...data,
-      // redirect: false,
-      callbackUrl: searchParams?.get("from") || "/dashboard",
-    })
-
-    setIsLoading(false)
-
-    if (!signInResult?.ok) {
-      return toast({
-        title: "Something went wrong.",
-        description: "Your sign in request failed. Please try again.",
-        variant: "destructive",
-      })
+      user && router.push("/dashboard")
+    } catch (error) {
+      console.log(error)
     }
-
-    return toast({
-      title: "Check your email",
-      description: "We sent you a login link. Be sure to check your spam too.",
-    })
+    setIsLoading(false)
   }
 
-  async function registerUser(data: FormData) {
+  async function registerUser({ email, password }: FormData) {
     setIsLoading(true)
 
     try {
-      const res = await addUser(data)
+      const res = await Auth.signUp({
+        username: email,
+        password,
+        attributes: {
+          email: email,
+          "custom:owner": "1",
+          "custom:manager": "1",
+          "custom:employee": "1",
+          // given_name: name,
+          // family_name: surname,
+        },
+      })
 
       if (res) {
         reset()
       }
     } catch (err) {
-      console.error(err)
+      console.error(err, "error")
     }
     setIsLoading(false)
 

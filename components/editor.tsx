@@ -69,11 +69,36 @@ export function Editor({}: EditorProps) {
     const secondary = type === "secondary"
 
     if (e.target instanceof HTMLInputElement && e.target.files) {
-      secondary ? setFileTwo(e.target.files[0]) : setFile(e.target.files[0])
+      const selectedFile = e.target.files[0]
+      if (selectedFile.type !== "video/mp4") {
+        return toast({
+          title: "Wrong File Type.",
+          description: "Please upload an MP4 File.",
+          variant: "destructive",
+        })
+      }
+
+      secondary ? setFileTwo(selectedFile) : setFile(selectedFile)
     } else if ("dataTransfer" in e && e.dataTransfer && e.dataTransfer.files) {
+      const selectedFile = e.dataTransfer.files[0]
+      if (selectedFile.type !== "video/mp4") {
+        return toast({
+          title: "Wrong File Type.",
+          description: "Please upload an MP4 File.",
+          variant: "destructive",
+        })
+      }
+
       secondary
         ? setFileTwo(e.dataTransfer.files[0])
         : setFile(e.dataTransfer.files[0])
+    }
+  }
+
+  const changeFileName = (file: File | undefined, newName: string) => {
+    if (file) {
+      const newFile = new File([file], newName, { type: file.type })
+      setFile(newFile)
     }
   }
   console.log(form.formState.errors, "form errors")
@@ -83,6 +108,11 @@ export function Editor({}: EditorProps) {
       setIsSaving(true)
 
       const url = template ? "/api/template/" : "/api/videos/"
+
+      changeFileName(file, data.title)
+      if (data.secondaryTitle) {
+        changeFileName(fileTwo, data.secondaryTitle)
+      }
 
       const response = await fetch(url, {
         method: "POST",
@@ -103,10 +133,12 @@ export function Editor({}: EditorProps) {
         const upload =
           file && (await uploadToS3(file, configId, VIDEO_TYPE.PRIMARY))
 
-        const videoConfigId = upload.id
+        const videoId = upload.id
 
+        console.log(videoId, "videoId")
+        console.log(upload, "xx23 upload something important")
         const secondaryUpload = fileTwo
-          ? await uploadToS3(fileTwo, videoConfigId, VIDEO_TYPE.SECONDARY)
+          ? await uploadToS3(fileTwo, videoId, VIDEO_TYPE.SECONDARY)
           : undefined
 
         setIsSaving(false)
@@ -150,6 +182,7 @@ export function Editor({}: EditorProps) {
         return
       }
     } catch (error) {
+      console.log(error, "error something")
       toast({
         title: "Something went wrong.",
         description: "Your video was not saved. Please try again.",
@@ -174,6 +207,7 @@ export function Editor({}: EditorProps) {
 
       router.push("/dashboard")
     } catch (error) {
+      console.log(error, "error something")
       toast({
         title: "Something went wrong.",
         description: "Your video was not saved. Please try again.",
@@ -280,6 +314,7 @@ export function Editor({}: EditorProps) {
           onClick={onClick}
           nextStep={nextStep}
           prevStep={prevStep}
+          clearFile={() => setFile(undefined)}
         />
       ) : null}
       {currentStep === 2 && !template ? (
@@ -296,6 +331,7 @@ export function Editor({}: EditorProps) {
           onClick={secondaryVideoClick}
           nextStep={nextStep}
           prevStep={prevStep}
+          clearFile={() => setFileTwo(undefined)}
         />
       ) : null}
       {currentStep === (template ? 2 : 4) ? (

@@ -16,7 +16,6 @@ export const FormSchema = z.object({
   caption: z.object({
     font: z.object({
       family: z.string(),
-      weight: z.string(),
       size: z.number(),
     }),
     sentence: z.object({
