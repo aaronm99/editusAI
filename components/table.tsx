@@ -86,6 +86,7 @@ export function DataTable({ templates }: { templates: VideoConfig[] }) {
             </TableHeader>
             <TableBody>
               {templates.map((template) => {
+                // @ts-ignore
                 const name = template?.config?.title
 
                 return (
@@ -108,6 +109,8 @@ export function DataTable({ templates }: { templates: VideoConfig[] }) {
                           <DropdownMenuItem
                             className="cursor-pointer"
                             onClick={() => {
+                              // @ts-ignore
+
                               setSelectedTemplate(template)
                               handleClick()
                             }}
@@ -143,7 +146,10 @@ export function DataTable({ templates }: { templates: VideoConfig[] }) {
               </DialogHeader>
               {selectedTemplate ? (
                 <Settings
+                  // @ts-ignore
                   config={selectedTemplate?.config}
+                  // @ts-ignore
+
                   id={selectedTemplate?.id}
                   close={handleClose}
                 />
