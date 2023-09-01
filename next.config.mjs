@@ -12,6 +12,13 @@ const nextConfig = {
     appDir: true,
     serverComponentsExternalPackages: ["@prisma/client"],
   },
+  webpack: (config) => {
+    config.infrastructureLogging = {
+      level: "error",
+    }
+
+    return config
+  },
 }
 
 export default withContentlayer(nextConfig)
