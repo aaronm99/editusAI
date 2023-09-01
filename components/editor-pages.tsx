@@ -34,7 +34,9 @@ import {
 } from "./ui/select"
 import { VideoUploadButton } from "./video-upload"
 
+// @ts-ignore
 import blueGradient from "../public/images/bluegradient.png"
+// @ts-ignore
 import yellowGradient from "../public/images/yellowgradient.png"
 import ReactCompareImage from "react-compare-image"
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group"
@@ -277,9 +279,12 @@ export const PageFour = ({
   screenPosition,
   loading,
 }: PageFourProps) => {
-  const [selectedFont, setSelectedFont] = React.useState<SelectedFontProps>({
-    family: null,
-  })
+  const [selectedFont, setSelectedFont] = React.useState<SelectedFontProps>(
+    // @ts-ignore
+    {
+      family: null,
+    }
+  )
 
   const [selectedColour, setSelectedColour] = React.useState<string>("#000")
 
@@ -361,11 +366,14 @@ export const PageFour = ({
 
         <div className="my-2 flex space-x-2">
           <Select
+            // @ts-ignore
             onValueChange={(e: FontType) => {
               setSelectedFont((s) => ({
                 ...s,
+                // @ts-ignore
                 family: e.value.style.fontFamily,
               }))
+              // @ts-ignore
               form.setValue("caption.font.family", e.name)
             }}
           >
@@ -377,6 +385,7 @@ export const PageFour = ({
                 <SelectLabel>Fonts</SelectLabel>
                 {fonts.map((font, idx) => {
                   return (
+                    // @ts-ignore
                     <SelectItem key={idx} value={font}>
                       {font.name}
                     </SelectItem>
@@ -395,6 +404,7 @@ export const PageFour = ({
                 <SelectLabel>Font Sizes</SelectLabel>
                 {fontSizes.map((size) => {
                   return (
+                    // @ts-ignore
                     <SelectItem key={size} value={size}>
                       {size}px
                     </SelectItem>

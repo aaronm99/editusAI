@@ -66,6 +66,7 @@ export async function PATCH(
         id: params.videoId,
       },
       data: {
+        // @ts-ignore
         config: body,
         title: body.title,
         status: "PROGRESS",

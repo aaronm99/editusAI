@@ -7,6 +7,7 @@ export default function DashboardLoading() {
   return (
     <DashboardShell>
       <DashboardHeader heading="Videos" text="Create and manage posts.">
+        {/* @ts-ignore */}
         <VideoCreateButton />
       </DashboardHeader>
       <div className="divide-border-200 divide-y rounded-md border">

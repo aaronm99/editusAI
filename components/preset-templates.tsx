@@ -40,12 +40,14 @@ export const TemplateSection = ({ preset }: Props) => {
     closeRef.current?.click()
   }
 
+  // @ts-ignore
   const videoConfigs = preset?.videoConfig || []
 
   return (
     <>
       <DataTable templates={videoConfigs} />
       <div className="mt-2 w-full">
+        {/* @ts-ignore */}
         <TemplateCreateButton id={preset.id} />
       </div>
     </>
@@ -173,6 +175,7 @@ export const Settings = ({
                 <FormItem>
                   <Select
                     onValueChange={field.onChange}
+                    // @ts-ignore
                     defaultValue={field.value}
                   >
                     <SelectTrigger className="w-[180px]">
@@ -183,6 +186,7 @@ export const Settings = ({
                         <SelectLabel>Font Sizes</SelectLabel>
                         {fontSizes.slice(0, 10).map((size) => {
                           return (
+                            // @ts-ignore
                             <SelectItem key={size} value={size}>
                               {size}px
                             </SelectItem>

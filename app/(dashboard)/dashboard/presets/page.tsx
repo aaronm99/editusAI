@@ -56,6 +56,7 @@ export default async function PresetPage() {
         {presets?.length ? (
           <div className="divide-y divide-border rounded-md border">
             {presets.map((preset) => (
+              // @ts-ignore
               <PresetItem key={preset.id} preset={preset} />
             ))}
           </div>

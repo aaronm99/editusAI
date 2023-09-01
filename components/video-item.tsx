@@ -14,10 +14,16 @@ export async function VideoItem({ video, s3key }: VideoItemProps) {
   return (
     <div className="flex items-center justify-between p-4">
       <div className="grid gap-1">
+        {/* @ts-ignore */}
+
         <p className="font-semibold hover:underline">{video?.config?.title}</p>
         <div>
+          {/* @ts-ignore */}
+
           {video?.config?.createdAt ? (
             <p className="text-sm text-muted-foreground">
+              {/* @ts-ignore */}
+
               {formatDate(video?.config?.createdAt?.toDateString())}
             </p>
           ) : null}
@@ -25,6 +31,8 @@ export async function VideoItem({ video, s3key }: VideoItemProps) {
       </div>
       {s3key ? <DownloadVideo s3key={s3key} /> : null}
       <VideoOperations
+        // @ts-ignore
+
         video={{ id: video.config.id, title: video.title }}
         noEdit
       />

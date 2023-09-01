@@ -67,12 +67,14 @@ export default async function DashboardPage(props) {
             : "Create and manage videos."
         }
       >
+        {/* @ts-ignore */}
         <VideoCreateButton />
       </DashboardHeader>
       <div>
         {draftVideos?.length ? (
           <div className="divide-y divide-border rounded-md border">
             {draftVideos.map((video) => (
+              // @ts-ignore
               <VideoItem key={video.id} video={video} />
             ))}
           </div>
@@ -83,6 +85,7 @@ export default async function DashboardPage(props) {
             <EmptyPlaceholder.Description>
               You don&apos;t have any videos yet. Start creating content.
             </EmptyPlaceholder.Description>
+            {/* @ts-ignore */}
             <VideoCreateButton variant="outline" />
           </EmptyPlaceholder>
         )}
@@ -97,6 +100,7 @@ export default async function DashboardPage(props) {
       {processingVideos?.length ? (
         <div className="divide-y divide-border rounded-md border">
           {processingVideos.map((video) => (
+            // @ts-ignore
             <VideoItem key={video.id} video={video} />
           ))}
         </div>
@@ -111,6 +115,7 @@ export default async function DashboardPage(props) {
       {reviewVideos?.length ? (
         <div className="divide-y divide-border rounded-md border">
           {reviewVideos.map((video) => (
+            // @ts-ignore
             <VideoItem key={video.id} video={video} />
           ))}
         </div>
@@ -128,7 +133,7 @@ export default async function DashboardPage(props) {
             const s3Key = video.video.find(
               (x) => x.type === VIDEO_TYPE.PRIMARY
             )?.key
-
+            //            @ts-ignore
             return <VideoItem key={video.id} video={video} s3key={s3Key} />
           })}
         </div>
