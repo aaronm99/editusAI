@@ -22,7 +22,7 @@ export default async function DashboardPage(props) {
     where: {
       video: {
         every: {
-          userId: currentUser?.id,
+          userId: currentUser?.username,
         },
       },
     },
