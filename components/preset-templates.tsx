@@ -1,9 +1,7 @@
 "use client"
 
-import { getTemplates } from "@/lib/utils"
-import { FontType } from "@/types/editor"
 import { FormSchema } from "@/types/schema"
-import { Casing, Config, Position, Template } from "@prisma/client"
+import { Casing, Config, Preset } from "@prisma/client"
 import { useEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import z from "zod"
@@ -27,21 +25,13 @@ import {
 import { toast } from "./ui/use-toast"
 
 type Props = {
-  presetId?: string
+  preset?: Preset
 }
 
-export const TemplateSection = ({ presetId }: Props) => {
+export const TemplateSection = ({ preset }: Props) => {
   const viewRef = useRef<HTMLButtonElement>(null)
   const closeRef = useRef<HTMLButtonElement>(null)
-  const [templates, setTemplates] = useState<Template[] | []>([])
 
-  useEffect(() => {
-    const templates = async () => {
-      const res = await getTemplates(presetId || "")
-      setTemplates(res)
-    }
-    templates()
-  }, [])
   function handleClick() {
     viewRef.current?.click()
   }
@@ -50,11 +40,13 @@ export const TemplateSection = ({ presetId }: Props) => {
     closeRef.current?.click()
   }
 
+  const videoConfigs = preset?.videoConfig || []
+
   return (
     <>
-      <DataTable templates={templates} />
+      <DataTable templates={videoConfigs} />
       <div className="mt-2 w-full">
-        <TemplateCreateButton id={presetId} />
+        <TemplateCreateButton id={preset.id} />
       </div>
     </>
   )
@@ -80,7 +72,6 @@ export const Settings = ({
       caption: {
         font: {
           family: config.fontName,
-          weight: config.fontWeight,
           size: config.fontSize,
         },
         sentence: {
@@ -360,7 +351,6 @@ export const Settings = ({
         <Button
           className="mt-4"
           onClick={() => {
-            //   handleCallback()
             form.handleSubmit(submit)()
           }}
         >

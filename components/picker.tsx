@@ -29,7 +29,7 @@ export const Decision = ({
   const form = useForm({
     defaultValues: {
       type: "manual",
-      presetConfigId: "",
+      presetId: "",
     },
   })
   const type = form.watch("type")
@@ -38,7 +38,7 @@ export const Decision = ({
 
   function handleSelectPreset(preset: Preset) {
     setSelectedPreset(preset)
-    form.setValue("presetConfigId", preset.id)
+    form.setValue("presetId", preset.id)
   }
 
   React.useEffect(() => {
@@ -52,12 +52,12 @@ export const Decision = ({
 
   React.useEffect(() => {
     if (type === "manual") {
-      form.setValue("presetConfigId", "")
+      form.setValue("presetId", "")
       setSelectedPreset(null)
     }
   }, [type, form])
 
-  const presetLength = presets.filter((x) => x?.presetConfig?.length).length
+  const presetLength = presets.filter((x) => x?.videoConfig?.length).length
 
   return (
     <>
@@ -137,7 +137,7 @@ export const Decision = ({
         <div className="flex w-full justify-end">
           <Button
             className="self-end"
-            onClick={() => handleCallback(form.getValues("presetConfigId"))}
+            onClick={() => handleCallback(form.getValues("presetId"))}
             disabled={disabled}
           >
             Next
@@ -193,7 +193,7 @@ function PresetItem({
           ) : null}
         </div>
         <div className="text-base font-semibold underline">Templates</div>
-        <TemplateSection presetId={preset.id} />
+        <TemplateSection preset={preset} />
       </div>
       <VideoOperations video={{ id: preset.id, title: preset.name }} />
     </div>

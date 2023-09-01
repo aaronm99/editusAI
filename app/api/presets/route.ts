@@ -56,11 +56,7 @@ export async function GET(req: Request) {
       select: {
         id: true,
         name: true,
-        presetConfig: {
-          select: {
-            config: true,
-          },
-        },
+        videoConfig: true,
       },
       orderBy: {
         createdAt: "desc",

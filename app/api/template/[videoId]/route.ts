@@ -29,34 +29,15 @@ export async function PATCH(
     const json = await req.json()
     const body = FormSchema.parse(json.content)
 
-    // Update the post.
-    // TODO: Implement sanitization for content.
-
-    // const id = await db.presetConfig.update({
-    //   where: {
-    //     id: params.videoId,
-    //   },
-    //   data: {
-    //     config: {
-    //       update: {
-    //         nouns: body.caption.sentence.highlight.nouns,
-    //       },
-    //     },
-    //   },
-    //   select: {
-    //     id: true,
-    //   },
-    // })
-
-    const presetConfig = await db.presetConfig.findFirst({
+    const preset = await db.preset.findFirst({
       where: {
         id: params.videoId,
       },
       select: {
-        config: true,
+        videoConfig: true,
       },
     })
-    const id = presetConfig?.config?.id
+    const id = preset?.videoConfig[0].configId
 
     const updateConfig = await db.config.update({
       where: {
@@ -66,7 +47,6 @@ export async function PATCH(
         nouns: body.caption.sentence.highlight.nouns,
         fontName: body.caption.font.family,
         fontSize: body.caption.font.size,
-        fontWeight: body.caption.font.weight,
         sentenceLength: Number(body.caption.sentence.length),
         sentenceCasing: body.caption.sentence.casing,
         textPosition: body.captionPosition,
@@ -89,7 +69,7 @@ export async function PATCH(
 }
 
 async function verifyCurrentUserHasAccessToPost(videoId: string) {
-  const count = await db.presetConfig.count({
+  const count = await db.preset.count({
     where: {
       id: videoId,
     },
@@ -112,7 +92,7 @@ export async function DELETE(
     }
 
     // Delete the post.
-    await db.presetConfig.delete({
+    await db.preset.delete({
       where: {
         id: params.videoId as string,
       },
@@ -144,18 +124,14 @@ export async function GET(
 
     const { params } = routeContextSchema.parse(context)
 
-    const templates = await db.presetConfig.findMany({
+    const templates = await db.preset.findMany({
       where: {
-        preset: {
-          userId: currentUser.username,
-          id: params.videoId,
-        },
+        userId: currentUser.username,
+        id: params.videoId,
       },
       select: {
         id: true,
-        config: true,
-        preset: true,
-        video: true,
+        videoConfig: true,
       },
     })
 

@@ -26,9 +26,19 @@ export default async function PresetPage() {
     select: {
       id: true,
       name: true,
-      presetConfig: {
+      videoConfig: {
         select: {
-          config: true,
+          configId: true,
+          createdAt: true,
+          id: true,
+          presetId: true,
+          updatedAt: true,
+          video: true,
+          config: {
+            select: {
+              title: true,
+            },
+          },
         },
       },
     },

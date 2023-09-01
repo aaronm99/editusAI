@@ -32,16 +32,27 @@ export async function uploadToS3(
   file: File,
   id?: string,
   type?: VIDEO_TYPE,
-  presetConfigId?: string,
-  presetId?: string
+  presetId?: string,
+  preset?: boolean
 ) {
   if (!file) return
   let createVideoConfig
   console.log("Getting S3 presigned URL...")
 
-  if (type === VIDEO_TYPE.PRIMARY) {
+  // if (preset) {
+  //     const res = await axios.post("/api/s3-video", {
+  //       id: createVideoConfig?.data?.videoConfig?.id || id,
+  //       type,
+  //       key: response.data.key,
+  //     })
+
+  //   return
+  // }
+
+  if (type === VIDEO_TYPE.PRIMARY || presetId) {
     createVideoConfig = await axios.post("/api/video-config", {
       id,
+      presetId,
     })
   }
 
@@ -72,52 +83,13 @@ export async function uploadToS3(
 
   await axios.put(signedRequest, file, options)
 
-  if (presetId) {
-    const res = await axios.post("/api/s3-video", {
-      id: "undefined",
-      type,
-      key: response.data.key,
-      presetId,
-    })
+  const res = await axios.post("/api/s3-video", {
+    id: createVideoConfig?.data?.videoConfig?.id || id,
+    type,
+    key: response.data.key,
+  })
 
-    const data = res.data
-
-    return data
-  }
-
-  if (presetConfigId) {
-    const res = await axios.post("/api/s3-video", {
-      id: "undefined",
-      type,
-      key: response.data.key,
-      presetConfigId,
-    })
-
-    const data = res.data
-
-    return data
-  }
-
-  if (type === VIDEO_TYPE.PRIMARY) {
-    const res = await axios.post("/api/s3-video", {
-      id: createVideoConfig.data.videoConfig.id || id,
-      type,
-      key: response.data.key,
-    })
-
-    return { id: createVideoConfig.data.videoConfig.id }
-  } else if (type === VIDEO_TYPE.SECONDARY) {
-    const res = await axios.patch("/api/s3-video", {
-      id,
-      type,
-      key: response.data.key,
-    })
-
-    const data = res.data
-
-    return data
-  }
-  return { id: createVideoConfig.data.videoConfig.id || id }
+  return { id: createVideoConfig?.data?.videoConfig?.id || id }
 }
 
 export const getTemplates = async (presetId: string) => {
@@ -129,4 +101,19 @@ export const getTemplates = async (presetId: string) => {
   })
   const data = await response.json()
   return data
+}
+
+export async function testRetry(bucket: string, key: string) {
+  try {
+    const res = await axios.post(
+      "https://dev.functions.gomoved.com/transcribe/retry",
+      {
+        bucket,
+        key,
+      }
+    )
+    console.log(res, "res")
+  } catch (error) {
+    console.log("error: ", error)
+  }
 }

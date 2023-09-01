@@ -11,15 +11,21 @@ AWS.config.update({
 
 const s3 = new AWS.S3()
 
-export async function GET(req: Request) {
+const Schema = z.object({
+  s3key: z.string(),
+})
+
+export async function POST(req: Request) {
   try {
-    const command = await s3
-      .getObject({
-        Bucket: process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME!,
-        Key: "cllguzx7w0002ufbw3lswbnot",
-      })
-      .promise()
-    return new Response(JSON.stringify({ command }), { status: 200 })
+    const json = await req.json()
+    const body = Schema.parse(json)
+
+    const url = s3.getSignedUrl("getObject", {
+      Bucket: process.env.NEXT_PUBLISH_AWS_S3_BUCKET_NAME_OUTPUT!,
+      Key: body.s3key,
+      Expires: 3600,
+    })
+    return new Response(JSON.stringify({ url }), { status: 200 })
   } catch (error) {
     if (error instanceof z.ZodError) {
       return new Response(JSON.stringify(error.issues), { status: 422 })

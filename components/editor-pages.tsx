@@ -619,7 +619,7 @@ export const PageFour = ({
           />
         </Form>
 
-        {form.watch("caption.sentence.highlight.nouns") ? (
+        {/* {form.watch("caption.sentence.highlight.nouns") ? (
           <>
             <h2 className="mb-4 mt-2 text-xl font-semibold">Keyword Colour</h2>
 
@@ -646,13 +646,15 @@ export const PageFour = ({
               }}
             />
           </>
-        ) : null}
+        ) : null} */}
         <Button
           className="mt-4"
           disabled={loading}
           onClick={() => {
             if (!form.getValues("caption.sentence.highlight.nouns")) {
               form.setValue("caption.sentence.highlight.colour", null)
+            } else {
+              form.setValue("caption.sentence.highlight.colour", "#000")
             }
 
             handleCallback()

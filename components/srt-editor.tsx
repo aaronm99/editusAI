@@ -1,5 +1,3 @@
-"use client"
-
 import React from "react"
 import SrtJson from "../config/srt.json"
 import ReactPlayer from "react-player"
@@ -7,8 +5,12 @@ import { EditCard } from "./edit-card"
 
 type ItemType = (typeof SrtJson.results.items)[0]
 
-export const SrtEditor = () => {
-  const [srt, setSrt] = React.useState(SrtJson)
+interface Props {
+  srt: typeof SrtJson
+  setSrt: (e: typeof SrtJson) => void
+}
+
+export const SrtEditor = ({ srt, setSrt }: Props) => {
   const videoRef = React.useRef(null)
   const [selectedWord, setSelectedWord] = React.useState<ItemType | null>(null)
   const [wordIndex, setWordIndex] = React.useState<number>(0)

@@ -77,8 +77,6 @@ model Config {
   textPosition    Position     @default(TOP)
   VideoConfig     VideoConfig?
   UserConfig      UserConfig?
-  PresetConfig    PresetConfig?
-
 }
 
 model VideoConfig {
@@ -86,20 +84,10 @@ model VideoConfig {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   configId  String   @unique
+  presetId  String?
   video     Video[]
+  preset    Preset?  @relation(fields: [presetId], references: [id])
   config    Config   @relation(fields: [configId], references: [id])
-}
-
-model PresetConfig {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  userId    String
-  configId  String   @unique
-  presetId  String
-  config    Config   @relation(fields: [configId], references: [id])
-  preset    Preset? @relation(fields: [presetId], references: [id])
-  video     Video?
 
   @@index([presetId])
 }
@@ -123,12 +111,10 @@ model Video {
   key            String
   type           VIDEO_TYPE
   configId       String      
-  presetConfigId String?     @unique
   presetId       String?
   status         VideoStatus @default(DRAFT)
   user           User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   videoConfig    VideoConfig? @relation(fields: [configId], references: [id])
-  presetConfig   PresetConfig? @relation(fields: [presetConfigId], references: [id])
   preset         Preset?     @relation(fields: [presetId], references: [id])
 
   @@index([userId])
@@ -142,9 +128,8 @@ model Preset {
   updatedAt    DateTime @updatedAt
   userId       String
   name         String
-  presetConfig PresetConfig[]
+  videoConfig  VideoConfig[]
   video        Video[]
-
 }
 
 enum VIDEO_TYPE {
@@ -163,7 +148,8 @@ enum VideoStatus {
   DRAFT
   PUBLISHED
   PROGRESS
-  FAILED
+  FAILED_UPLOADING
+  FAILED_PROCESSING
 }
 
 enum Casing {

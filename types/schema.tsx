@@ -35,21 +35,15 @@ export const PresetSchema = z.object({
   }),
 })
 
-export const TemplateSchema = z.object({
-  content: FormSchema,
-  presetConfigId: z.string(),
-})
-
 export const VideoSchema = z.object({
   content: FormSchema,
-  presetConfigId: z.undefined(),
 })
 
 export const FormPresetSchema = z.object({
   title: z.string().min(2, {
     message: "Name must be at least 2 characters.",
   }),
-  presetConfigId: z.string(),
+  presetId: z.string(),
 })
 
 export const PresetVideoSchema = z.object({
@@ -60,7 +54,6 @@ export const S3VideoSchema = z.object({
   id: z.string().optional(),
   type: z.nativeEnum(VIDEO_TYPE).optional(),
   key: z.string().optional(),
-  presetConfigId: z.string().optional(),
   presetId: z.string().optional(),
 })
 

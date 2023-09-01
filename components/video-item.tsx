@@ -1,30 +1,29 @@
-import Link from "next/link"
-import { Video, VideoConfig } from "@prisma/client"
+import { VideoConfig } from "@prisma/client"
 
-import { formatDate } from "@/lib/utils"
 import { Skeleton } from "@/components/ui/skeleton"
 import { VideoOperations } from "@/components/video-operations"
+import { formatDate } from "@/lib/utils"
+import { DownloadVideo } from "./download-video"
 
 interface VideoItemProps {
   video: VideoConfig
+  s3key?: string
 }
 
-export function VideoItem({ video }: VideoItemProps) {
+export async function VideoItem({ video, s3key }: VideoItemProps) {
   return (
     <div className="flex items-center justify-between p-4">
       <div className="grid gap-1">
-        <Link
-          href={`/editor/${video.id}`}
-          className="font-semibold hover:underline"
-        >
-          {video?.config?.title}
-        </Link>
+        <p className="font-semibold hover:underline">{video?.config?.title}</p>
         <div>
-          <p className="text-sm text-muted-foreground">
-            {formatDate(video?.config?.createdAt?.toDateString())}
-          </p>
+          {video?.config?.createdAt ? (
+            <p className="text-sm text-muted-foreground">
+              {formatDate(video?.config?.createdAt?.toDateString())}
+            </p>
+          ) : null}
         </div>
       </div>
+      {s3key ? <DownloadVideo s3key={s3key} /> : null}
       <VideoOperations
         video={{ id: video.config.id, title: video.title }}
         noEdit

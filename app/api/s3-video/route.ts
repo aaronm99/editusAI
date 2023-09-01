@@ -4,6 +4,7 @@ import { db } from "@/lib/db"
 import { RequiresProPlanError } from "@/lib/exceptions"
 import { S3VideoSchema } from "@/types/schema"
 import { getWithSSRContext } from "@/app/(auth)/ssr"
+import { VIDEO_TYPE } from "@prisma/client"
 
 export async function POST(req: Request) {
   try {
@@ -24,12 +25,15 @@ export async function POST(req: Request) {
       return new Response("Missing id or type or key", { status: 422 })
     }
 
-    const presetConfigId = body.presetConfigId
+    const bucketName =
+      body.type === VIDEO_TYPE.PRIMARY
+        ? process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME!
+        : process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME_SECONDARY!
 
     const video = await db.video.create({
       data: {
         userId: currentUser.username,
-        bucket: currentUser.username,
+        bucket: bucketName,
         key: body.key,
         type: body.type,
         configId: body.id,
@@ -38,38 +42,6 @@ export async function POST(req: Request) {
         id: true,
       },
     })
-
-    if (body.presetId) {
-      const updatedVideo = await db.video.update({
-        where: {
-          id: video.id,
-        },
-        data: {
-          presetId: body.presetId,
-        },
-        select: {
-          presetId: true,
-        },
-      })
-
-      return new Response(JSON.stringify(updatedVideo))
-    }
-
-    if (body.presetConfigId) {
-      const updatedVideo = await db.video.update({
-        where: {
-          id: video.id,
-        },
-        data: {
-          presetConfigId,
-        },
-        select: {
-          configId: true,
-        },
-      })
-
-      return new Response(JSON.stringify(updatedVideo))
-    }
 
     return new Response(JSON.stringify({ video }))
   } catch (error) {
@@ -99,6 +71,11 @@ export async function PATCH(req: Request) {
     const json = await req.json()
     const body = S3VideoSchema.parse(json)
 
+    const bucketName =
+      body.type === VIDEO_TYPE.PRIMARY
+        ? process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME!
+        : process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME_SECONDARY!
+
     if (!body.id || !body.type || !body.key) {
       return new Response("Missing id or type or key", { status: 422 })
     }
@@ -106,7 +83,7 @@ export async function PATCH(req: Request) {
     const video = await db.video.create({
       data: {
         userId: currentUser.username,
-        bucket: currentUser.username,
+        bucket: bucketName,
         key: body.key,
         type: body.type,
         configId: body.id,

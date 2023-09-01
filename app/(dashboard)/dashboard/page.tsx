@@ -2,12 +2,11 @@ import { getWithSSRContext } from "@/app/(auth)/ssr"
 import { EmptyPlaceholder } from "@/components/empty-placeholder"
 import { DashboardHeader } from "@/components/header"
 
+import { DashboardShell } from "@/components/shell"
 import { VideoCreateButton } from "@/components/video-create-button"
 import { VideoItem } from "@/components/video-item"
-import { DashboardShell } from "@/components/shell"
-import { ProcessingVideo } from "@/components/process-video"
-import { VideoStatus } from "@prisma/client"
 import { db } from "@/lib/db"
+import { VideoStatus, VIDEO_TYPE } from "@prisma/client"
 
 export const metadata = {
   title: "Dashboard",
@@ -35,8 +34,6 @@ export default async function DashboardPage(props) {
       updatedAt: "desc",
     },
   })
-
-  console.log(videoConfig, "videoConfig")
 
   const draftVideos = videoConfig.filter(
     (x) =>
@@ -104,7 +101,6 @@ export default async function DashboardPage(props) {
           ))}
         </div>
       ) : null}
-      {/* <ProcessingVideo /> */}
       {reviewVideos.length ? (
         <DashboardHeader
           heading="Review"
@@ -128,9 +124,13 @@ export default async function DashboardPage(props) {
       ) : null}
       {completeVideos?.length ? (
         <div className="divide-y divide-border rounded-md border">
-          {completeVideos.map((video) => (
-            <VideoItem key={video.id} video={video} />
-          ))}
+          {completeVideos.map((video) => {
+            const s3Key = video.video.find(
+              (x) => x.type === VIDEO_TYPE.PRIMARY
+            )?.key
+
+            return <VideoItem key={video.id} video={video} s3key={s3Key} />
+          })}
         </div>
       ) : null}
     </DashboardShell>

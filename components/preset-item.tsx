@@ -23,7 +23,7 @@ export function PresetItem({ preset }: PresetItemProps) {
           ) : null}
         </div>
         <div className="text-base font-semibold underline">Templates</div>
-        <TemplateSection presetId={preset.id} />
+        <TemplateSection preset={preset} />
       </div>
       <VideoOperations
         video={{ id: preset.id, title: preset.name }}

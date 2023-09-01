@@ -1,11 +1,19 @@
+"use client"
 import { Icons } from "@/components/icons"
-import { ConfirmButton } from "@/components/srt-confirm"
 import { SrtEditor } from "@/components/srt-editor"
-import { buttonVariants } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
+import SrtJson from "../../config/srt.json"
+import { useState } from "react"
 
 export default function Page() {
+  const [srt, setSrt] = useState(SrtJson)
+
+  function handleConfirm() {
+    // rewrite the srt file with the new data
+  }
+
   return (
     <div>
       <div className="flex flex-row justify-between">
@@ -21,10 +29,12 @@ export default function Page() {
           <h2 className="text-lg font-semibold">Video Name</h2>
         </div>
 
-        <ConfirmButton />
+        <Button variant="default" onClick={handleConfirm}>
+          Confirm
+        </Button>
       </div>
 
-      <SrtEditor />
+      <SrtEditor srt={srt} setSrt={(e) => setSrt(e)} />
     </div>
   )
 }

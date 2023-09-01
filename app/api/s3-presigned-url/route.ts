@@ -32,8 +32,6 @@ export async function POST(req: Request) {
 
     const key = id ? `${currentUser.username}/${id}.mp4` : fileName
 
-    console.log(key, "key something xx23")
-
     const s3Params = {
       Bucket: bucketName,
       Key: key,
@@ -44,8 +42,6 @@ export async function POST(req: Request) {
       },
       //   ACL: "public-read", // Depending on your requirements
     }
-
-    console.log("this ran 111")
 
     const signedRequest = await s3.getSignedUrlPromise("putObject", s3Params)
 

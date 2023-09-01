@@ -1,6 +1,5 @@
 "use client"
 
-import EditorJS from "@editorjs/editorjs"
 import { zodResolver } from "@hookform/resolvers/zod"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -25,13 +24,10 @@ interface EditorProps {}
 type FormData = z.infer<typeof postPatchSchema>
 
 export function Editor({}: EditorProps) {
-  const { register, handleSubmit } = useForm<FormData>({
-    resolver: zodResolver(postPatchSchema),
-  })
-  const ref = React.useRef<EditorJS>()
   const router = useRouter()
   const params = useSearchParams()
   const template = params?.get("template")
+  const presetId = params?.get("id")
   const [isSaving, setIsSaving] = React.useState<boolean>(false)
   const [file, setFile] = React.useState<File | undefined>(undefined)
   const [fileTwo, setFileTwo] = React.useState<File | undefined>(undefined)
@@ -107,21 +103,18 @@ export function Editor({}: EditorProps) {
     try {
       setIsSaving(true)
 
-      const url = template ? "/api/template/" : "/api/videos/"
-
       changeFileName(file, data.title)
       if (data.secondaryTitle) {
         changeFileName(fileTwo, data.secondaryTitle)
       }
 
-      const response = await fetch(url, {
+      const response = await fetch("/api/videos/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           content: data,
-          presetConfigId: template ? params?.get("id") : undefined,
         }),
       })
 
@@ -129,58 +122,37 @@ export function Editor({}: EditorProps) {
 
       const configId = json.id
 
-      if (!template) {
-        const upload =
-          file && (await uploadToS3(file, configId, VIDEO_TYPE.PRIMARY))
+      const upload =
+        file && (await uploadToS3(file, configId, VIDEO_TYPE.PRIMARY))
 
-        const videoId = upload.id
+      const videoId = upload?.id
 
-        console.log(videoId, "videoId")
-        console.log(upload, "xx23 upload something important")
-        const secondaryUpload = fileTwo
-          ? await uploadToS3(fileTwo, videoId, VIDEO_TYPE.SECONDARY)
-          : undefined
+      const secondaryId = template ? configId : videoId
 
-        setIsSaving(false)
+      const secondaryUpload = fileTwo
+        ? await uploadToS3(
+            fileTwo,
+            secondaryId,
+            VIDEO_TYPE.SECONDARY,
+            presetId || undefined
+          )
+        : undefined
 
-        if (!response?.ok) {
-          return toast({
-            title: "Something went wrong.",
-            description: "Your video was not saved. Please try again.",
-            variant: "destructive",
-          })
-        }
+      setIsSaving(false)
 
-        toast({
-          description: "Your video has been saved.",
+      if (!response?.ok) {
+        return toast({
+          title: "Something went wrong.",
+          description: "Your video was not saved. Please try again.",
+          variant: "destructive",
         })
-        router.push("/dashboard")
-        return
-      } else {
-        const createPresetConfig = await fetch(`/api/preset-config`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            presetConfigId: params?.get("id"),
-            configId,
-          }),
-        })
-
-        const res = await createPresetConfig.json()
-
-        const secondaryUpload = fileTwo
-          ? await uploadToS3(fileTwo, undefined, VIDEO_TYPE.SECONDARY, res.id)
-          : undefined
-
-        setIsSaving(false)
-        toast({
-          description: "Your video has been saved.",
-        })
-        router.push("/dashboard")
-        return
       }
+
+      toast({
+        description: "Your video has been saved.",
+      })
+      router.push("/dashboard")
+      return
     } catch (error) {
       console.log(error, "error something")
       toast({
@@ -196,9 +168,11 @@ export function Editor({}: EditorProps) {
     try {
       setIsSaving(true)
 
-      const upload =
-        file &&
-        uploadToS3(file, "", VIDEO_TYPE.PRIMARY, undefined, data.presetConfigId)
+      //TODO FIX  THIS
+      // const upload =
+      //   file && uploadToS3(file, "", VIDEO_TYPE.PRIMARY, data.presetId, true)
+
+      // upload the primary video and g
 
       setIsSaving(false)
       toast({
@@ -257,10 +231,10 @@ export function Editor({}: EditorProps) {
   // const backProps =
   //   currentStep === 1 ? { href: "/dashboard" } : { onClick: () => prevStep() }
 
-  function handleCallback(presetConfigId: string) {
+  function handleCallback(presetId: string) {
     try {
-      if (!presetConfigId) return nextStep()
-      presetForm.setValue("presetConfigId", presetConfigId)
+      if (!presetId) return nextStep()
+      presetForm.setValue("presetId", presetId)
       presetForm.setValue("title", form.getValues("title"))
       presetForm.handleSubmit(presetSubmit)()
     } catch (error) {

@@ -4,6 +4,7 @@ import { z } from "zod"
 
 const schema = z.object({
   id: z.string(),
+  presetId: z.string().optional(),
 })
 
 export async function POST(req: Request) {
@@ -22,6 +23,7 @@ export async function POST(req: Request) {
     const videoConfig = await db.videoConfig.create({
       data: {
         configId: body.id,
+        presetId: body.presetId,
       },
     })
 

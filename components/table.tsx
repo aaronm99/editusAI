@@ -31,15 +31,14 @@ import {
   TableRow,
 } from "./ui/table"
 import { toast } from "./ui/use-toast"
-import { PresetConfig } from "@prisma/client"
+import { VideoConfig } from "@prisma/client"
 
-export function DataTable({ templates }: { templates: PresetConfig[] }) {
+export function DataTable({ templates }: { templates: VideoConfig[] }) {
   const viewRef = React.useRef<HTMLButtonElement>(null)
   const closeRef = React.useRef<HTMLButtonElement>(null)
   const router = useRouter()
 
-  const [selectedTemplate, setSelectedTemplate] =
-    React.useState<PresetConfig | null>(null)
+  const [selectedTemplate, setSelectedTemplate] = React.useState(null)
 
   function handleClick() {
     viewRef.current?.click()
@@ -87,7 +86,7 @@ export function DataTable({ templates }: { templates: PresetConfig[] }) {
             </TableHeader>
             <TableBody>
               {templates.map((template) => {
-                const [_, name] = template?.video?.key?.split("-") || []
+                const name = template?.config?.title
 
                 return (
                   <TableRow key={template.id}>
@@ -95,10 +94,7 @@ export function DataTable({ templates }: { templates: PresetConfig[] }) {
                       {name || "Untitled Template"}
                     </TableCell>
                     <TableCell className="text-right">
-                      {format(
-                        new Date(template?.config?.createdAt),
-                        "dd/MM/yyyy"
-                      )}
+                      {format(new Date(template?.createdAt), "dd/MM/yyyy")}
                     </TableCell>
                     <TableCell className="">
                       <DropdownMenu>

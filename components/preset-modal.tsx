@@ -33,6 +33,7 @@ import { useRouter } from "next/navigation"
 export const PresetModal = () => {
   const { toast } = useToast()
   const router = useRouter()
+  const [loading, setLoading] = useState(false)
 
   const closeRef = useRef<HTMLButtonElement>(null)
 
@@ -40,6 +41,7 @@ export const PresetModal = () => {
 
   async function onSubmit(data) {
     try {
+      setLoading(true)
       const res = fetch("/api/presets", {
         method: "POST",
         headers: {
@@ -58,6 +60,7 @@ export const PresetModal = () => {
         title: "Success!",
         description: `Preset '${data.name}' created successfully`,
       })
+      setLoading(false)
       closeRef.current && closeRef.current.click()
       router.refresh()
     } catch (error) {
@@ -65,6 +68,7 @@ export const PresetModal = () => {
         title: "An error occurred",
         description: "Error creating Preset. Please try again later.",
       })
+      setLoading(false)
       closeRef.current && closeRef.current.click()
     }
   }
@@ -105,7 +109,7 @@ export const PresetModal = () => {
                 Cancel
               </Button>
             </DialogClose>
-            <Button variant="default" onClick={form.handleSubmit(onSubmit)}>
+            <Button variant="default" onClick={form.handleSubmit(onSubmit)} disabled={loading}>
               Create Preset
             </Button>
           </DialogFooter>

@@ -74,8 +74,6 @@ export const metadata = {
   manifest: `${siteConfig.url}/site.webmanifest`,
 }
 
-Amplify.configure(config)
-
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en" suppressHydrationWarning>
