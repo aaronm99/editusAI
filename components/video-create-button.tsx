@@ -12,7 +12,9 @@ import Link, { LinkProps } from "next/link"
 interface VideoCreateButtonProps extends LinkProps {}
 
 export function VideoCreateButton({
+  // @ts-ignore
   className,
+  // @ts-ignore
   variant,
   ...props
 }: VideoCreateButtonProps) {
