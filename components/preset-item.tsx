@@ -26,6 +26,7 @@ export function PresetItem({ preset }: PresetItemProps) {
         <TemplateSection preset={preset} />
       </div>
       <VideoOperations
+        // @ts-ignore
         video={{ id: preset.id, title: preset.name }}
         noEdit
         preset

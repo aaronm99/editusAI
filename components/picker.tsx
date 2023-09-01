@@ -196,6 +196,7 @@ function PresetItem({
         <div className="text-base font-semibold underline">Templates</div>
         <TemplateSection preset={preset} />
       </div>
+      {/* @ts-ignore */}
       <VideoOperations video={{ id: preset.id, title: preset.name }} />
     </div>
   )
