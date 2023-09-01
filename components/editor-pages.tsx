@@ -154,7 +154,7 @@ export const PageTwo = ({
       {file ? (
         <div className="ml-6 mt-8">
           <div className="flex flex-row space-x-12">
-            <div className="w-1/2">
+            <div className="relative w-1/2">
               <div
                 className="absolute -right-2 -top-2 z-10 cursor-pointer rounded-full bg-red-500 p-0.5"
                 onClick={clearFile}
