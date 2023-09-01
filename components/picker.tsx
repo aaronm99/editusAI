@@ -57,6 +57,7 @@ export const Decision = ({
     }
   }, [type, form])
 
+  // @ts-ignore
   const presetLength = presets.filter((x) => x?.videoConfig?.length).length
 
   return (
