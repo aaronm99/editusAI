@@ -14,7 +14,9 @@ interface TemplateCreateButtonProps extends LinkProps {
 }
 
 export function TemplateCreateButton({
+  // @ts-ignore
   className,
+  // @ts-ignore
   variant,
   id,
   ...props
