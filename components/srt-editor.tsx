@@ -16,6 +16,7 @@ export const SrtEditor = ({ srt, setSrt }: Props) => {
   const [wordIndex, setWordIndex] = React.useState<number>(0)
 
   function seek(time: string | undefined) {
+    // @ts-ignore
     videoRef.current && time && videoRef.current.seekTo(time, "seconds")
   }
 
@@ -31,6 +32,8 @@ export const SrtEditor = ({ srt, setSrt }: Props) => {
   function updateWord(word) {
     const updatedSrt = { ...srt }
     updatedSrt.results.items[wordIndex].alternatives[0].content = word
+    // @ts-ignore
+
     updatedSrt.results.items[wordIndex].isUpdated = true // Mark as updated
     setSrt(updatedSrt)
     setSelectedWord(null)
@@ -88,6 +91,8 @@ const EditorWord = ({
 }) => {
   const word = item.alternatives[0].content
   const time = item.start_time
+  // @ts-ignore
+
   const isUpdated = item.isUpdated || false
 
   return (
