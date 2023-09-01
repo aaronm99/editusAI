@@ -1,5 +1,6 @@
 import Image from "next/image"
 import Link from "next/link"
+// @ts-ignore
 import { allPosts } from "contentlayer/generated"
 import { compareDesc } from "date-fns"
 

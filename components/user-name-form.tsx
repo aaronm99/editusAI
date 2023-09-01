@@ -46,6 +46,7 @@ export function UserNameForm({ user, className, ...props }: UserNameFormProps) {
   async function onSubmit(data: FormData) {
     setIsSaving(true)
 
+    // @ts-ignore
     const response = await fetch(`/api/users/${user.username}`, {
       method: "PATCH",
       headers: {
