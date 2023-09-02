@@ -123,17 +123,17 @@ export function Editor({}: EditorProps) {
       const configId = json.id
 
       const upload =
-        file && (await uploadToS3(file, configId, VIDEO_TYPE.PRIMARY))
+        fileTwo && (await uploadToS3(fileTwo, configId, VIDEO_TYPE.SECONDARY))
 
       const videoId = upload?.id
 
       const secondaryId = template ? configId : videoId
 
-      const secondaryUpload = fileTwo
+      const secondaryUpload = file
         ? await uploadToS3(
-            fileTwo,
+            file,
             secondaryId,
-            VIDEO_TYPE.SECONDARY,
+            VIDEO_TYPE.PRIMARY,
             presetId || undefined
           )
         : undefined

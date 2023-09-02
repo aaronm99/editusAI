@@ -49,7 +49,7 @@ export async function uploadToS3(
   //   return
   // }
 
-  if (type === VIDEO_TYPE.PRIMARY || presetId) {
+  if (type === VIDEO_TYPE.SECONDARY || presetId) {
     createVideoConfig = await axios.post("/api/video-config", {
       id,
       presetId,
