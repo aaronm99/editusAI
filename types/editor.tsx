@@ -4,7 +4,7 @@ export type PageProps = {
 }
 
 export interface PageOneProps extends PageProps {
-  file: File | undefined
+  file: { 1?: File | undefined } | undefined
   form: any
   isDragging: boolean
   handleDragEnter: (e: React.DragEvent<HTMLDivElement>) => void

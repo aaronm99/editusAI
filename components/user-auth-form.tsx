@@ -81,11 +81,6 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
       console.error(err, "error")
     }
     setIsLoading(false)
-
-    return toast({
-      title: "Check your email",
-      description: "We sent you a login link. Be sure to check your spam too.",
-    })
   }
 
   return (

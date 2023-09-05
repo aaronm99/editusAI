@@ -29,7 +29,12 @@ export function Editor({}: EditorProps) {
   const template = params?.get("template")
   const presetId = params?.get("id")
   const [isSaving, setIsSaving] = React.useState<boolean>(false)
-  const [file, setFile] = React.useState<File | undefined>(undefined)
+  const [primaryVideo, setPrimaryVideo] = React.useState<
+    { 1?: File | undefined } | undefined
+  >({
+    1: undefined,
+  })
+  const [primaryVideoCount, setPrimaryVideoCount] = React.useState<number>(1)
   const [fileTwo, setFileTwo] = React.useState<File | undefined>(undefined)
   const [isDragging, setIsDragging] = React.useState<boolean>(false)
   const [currentStep, setCurrentStep] = React.useState<number>(1)
@@ -63,6 +68,7 @@ export function Editor({}: EditorProps) {
     type?: "secondary"
   ) => {
     const secondary = type === "secondary"
+    setPrimaryVideoCount((prev) => prev + 1)
 
     if (e.target instanceof HTMLInputElement && e.target.files) {
       const selectedFile = e.target.files[0]
@@ -74,7 +80,14 @@ export function Editor({}: EditorProps) {
         })
       }
 
-      secondary ? setFileTwo(selectedFile) : setFile(selectedFile)
+      const value = primaryVideoCount
+
+      secondary
+        ? setFileTwo(selectedFile)
+        : setPrimaryVideo((s) => ({
+            ...s,
+            [value]: selectedFile,
+          }))
     } else if ("dataTransfer" in e && e.dataTransfer && e.dataTransfer.files) {
       const selectedFile = e.dataTransfer.files[0]
       if (selectedFile.type !== "video/mp4") {
@@ -87,14 +100,14 @@ export function Editor({}: EditorProps) {
 
       secondary
         ? setFileTwo(e.dataTransfer.files[0])
-        : setFile(e.dataTransfer.files[0])
+        : setPrimaryVideo((s) => ({ ...s, 1: e.dataTransfer.files[0] }))
     }
   }
 
   const changeFileName = (file: File | undefined, newName: string) => {
     if (file) {
       const newFile = new File([file], newName, { type: file.type })
-      setFile(newFile)
+      setPrimaryVideo((s) => ({ ...s, 1: newFile }))
     }
   }
   console.log(form.formState.errors, "form errors")
@@ -103,7 +116,7 @@ export function Editor({}: EditorProps) {
     try {
       setIsSaving(true)
 
-      changeFileName(file, data.title)
+      changeFileName(primaryVideo && primaryVideo[1], data.title)
       if (data.secondaryTitle) {
         changeFileName(fileTwo, data.secondaryTitle)
       }
@@ -129,14 +142,15 @@ export function Editor({}: EditorProps) {
 
       const secondaryId = template ? configId : videoId
 
-      const secondaryUpload = file
-        ? await uploadToS3(
-            file,
-            secondaryId,
-            VIDEO_TYPE.PRIMARY,
-            presetId || undefined
-          )
-        : undefined
+      const secondaryUpload =
+        primaryVideo && primaryVideo[1]
+          ? await uploadToS3(
+              primaryVideo[1],
+              secondaryId,
+              VIDEO_TYPE.PRIMARY,
+              presetId || undefined
+            )
+          : undefined
 
       setIsSaving(false)
 
@@ -279,7 +293,7 @@ export function Editor({}: EditorProps) {
 
       {currentStep === 1 && !template ? (
         <PageOne
-          file={file}
+          file={primaryVideo}
           form={form}
           isDragging={isDragging}
           handleDragEnter={handleDragEnter}
@@ -288,7 +302,7 @@ export function Editor({}: EditorProps) {
           onClick={onClick}
           nextStep={nextStep}
           prevStep={prevStep}
-          clearFile={() => setFile(undefined)}
+          clearFile={() => setPrimaryVideo(undefined)}
         />
       ) : null}
       {currentStep === 2 && !template ? (

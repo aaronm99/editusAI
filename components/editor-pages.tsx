@@ -62,74 +62,86 @@ export const PageOne = ({
 
   return (
     <>
-      {file ? (
-        <div className="ml-6 mt-8">
-          <div className="flex flex-row space-x-12">
-            <div className="relative w-1/2">
-              <div
-                className="absolute -right-2 -top-2 z-10 cursor-pointer rounded-full bg-red-500 p-0.5"
-                onClick={clearFile}
-              >
-                <X size={20} />
-              </div>
-              <video
-                className="rounded-lg"
-                src={file ? URL.createObjectURL(file) : ""}
-              />
+      {Object.values(file).filter(Boolean).length ? (
+        <>
+          {Object.values(file).map((x, idx) => {
+            return (
+              <div className="ml-6 mt-8">
+                <div className="flex flex-row space-x-12">
+                  <div className="relative w-1/2">
+                    <div
+                      className="absolute -right-2 -top-2 z-10 cursor-pointer rounded-full bg-red-500 p-0.5"
+                      onClick={clearFile}
+                    >
+                      <X size={20} />
+                    </div>
+                    <video
+                      className="rounded-lg"
+                      src={x ? URL.createObjectURL(x) : ""}
+                    />
 
-              <div className="mt-2 flex flex-row justify-between">
-                <p>
-                  <span className="text-gray-500">type: </span>
-                  {file.type}
-                </p>
-                <p>
-                  <span className="text-gray-500">size: </span>
-                  {formatFileSize(file.size)}
-                </p>
-              </div>
-            </div>
+                    <div className="mt-2 flex flex-row justify-between">
+                      <p>
+                        <span className="text-gray-500">type: </span>
+                        {x?.type}
+                      </p>
+                      <p>
+                        <span className="text-gray-500">size: </span>
+                        {formatFileSize(x?.size)}
+                      </p>
+                    </div>
+                  </div>
 
-            <Form {...form}>
-              <form className="w-2/3 space-y-6">
-                <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Title</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Title goes here..." {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Name your video for internal usage.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button onClick={() => nextStep()}>Next</Button>
-              </form>
-            </Form>
-          </div>
-        </div>
-      ) : (
-        <EmptyPlaceholder
-          className={cn("mt-8", isDragging ? "border-blue-500" : undefined)}
-          onDragEnter={handleDragEnter}
-          onDragOver={(e) => e.preventDefault()}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-        >
-          <EmptyPlaceholder.Icon name="video" />
-          <EmptyPlaceholder.Title>
-            {isDragging ? "Drop your video here!" : "No video uploaded"}
-          </EmptyPlaceholder.Title>
-          <EmptyPlaceholder.Description>
-            You have not uploaded a video yet.
-          </EmptyPlaceholder.Description>
-          <VideoUploadButton variant="outline" onClick={() => onClick()} />
-        </EmptyPlaceholder>
-      )}
+                  <Form {...form}>
+                    <form className="w-2/3 space-y-6">
+                      <FormField
+                        control={form.control}
+                        name={`title-${idx}`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Title</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Title goes here..."
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormDescription>
+                              Name your video for internal usage.
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <Button onClick={() => nextStep()}>Next</Button>
+                    </form>
+                  </Form>
+                </div>
+              </div>
+            )
+          })}
+        </>
+      ) : null}
+      <EmptyPlaceholder
+        className={cn("mt-8", isDragging ? "border-blue-500" : undefined)}
+        onDragEnter={handleDragEnter}
+        onDragOver={(e) => e.preventDefault()}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
+        <EmptyPlaceholder.Icon name="video" />
+        <EmptyPlaceholder.Title>
+          {isDragging
+            ? "Drop your video here!"
+            : file
+            ? "Upload another video"
+            : "No video uploaded"}
+        </EmptyPlaceholder.Title>
+        <EmptyPlaceholder.Description>
+          You have not uploaded a video yet.
+        </EmptyPlaceholder.Description>
+        <VideoUploadButton variant="outline" onClick={() => onClick()} />
+      </EmptyPlaceholder>
     </>
   )
 }
